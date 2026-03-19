@@ -161,23 +161,27 @@ def calculate_solar_return(jd_natal, target_year):
     return swe.solcross_ut(sun_longitude, jd_start)
 
 def calculate_house_position(jd_ut, longitude, latitude):
-    """Lógica CORRIGIDA para impedir o sumiço das Casas 6 a 11."""
+    """Lógica CORRIGIDA para matriz Python (Índices de 0 a 11)."""
     cusps, ascmc = swe.houses_ex(jd_ut, latitude, longitude, b'P')
     sun_pos, _ = swe.calc_ut(jd_ut, swe.SUN)
     sun_lon = sun_pos[0]
     
-    # Índice 0 é descartado pela matriz astrológica. Loop de 1 a 12.
-    for i in range(1, 13):
+    # A tupla 'cusps' tem 12 elementos (0 a 11)
+    # cusps[0] = Casa 1 | cusps[11] = Casa 12
+    for i in range(12):
         cusp_start = cusps[i]
-        cusp_end = cusps[1] if i == 12 else cusps[i+1]
+        # Se for o último índice (11), o fim da casa é o início da primeira (0)
+        cusp_end = cusps[0] if i == 11 else cusps[i+1]
         
         if cusp_start < cusp_end:
             if cusp_start <= sun_lon < cusp_end:
-                return i
+                return i + 1  # Retorna a Casa real (1 a 12)
         else:
+            # Atravessa o grau 360 (0º de Áries)
             if sun_lon >= cusp_start or sun_lon < cusp_end:
-                return i
-    return 1
+                return i + 1  # Retorna a Casa real (1 a 12)
+                
+    return 1  # Fallback
 
 def scan_premium_houses(jd_return):
     """
