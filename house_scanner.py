@@ -4,9 +4,9 @@ from datetime import datetime
 # ========== CONFIGURAÇÃO DA SWISS EPHEMERIS ==========
 swe.set_ephe_path('/usr/share/sweph/ephe')
 
-# ========== BANCO DE DADOS PREMIUM EXPANDIDO (120+ CIDADES) ==========
+# ========== BANCO DE DADOS PREMIUM EXPANDIDO (125+ CIDADES E VÓRTICES) ==========
 PREMIUM_CITIES = [
-    # AMÉRICAS
+    # --- AMÉRICA DO NORTE ---
     {"continent": "América do Norte", "country": "Canadá", "city": "Vancouver", "lat": 49.2827, "lon": -123.1207},
     {"continent": "América do Norte", "country": "Canadá", "city": "Toronto", "lat": 43.6510, "lon": -79.3470},
     {"continent": "América do Norte", "country": "Canadá", "city": "Montreal", "lat": 45.5017, "lon": -73.5673},
@@ -18,12 +18,20 @@ PREMIUM_CITIES = [
     {"continent": "América do Norte", "country": "EUA", "city": "São Francisco", "lat": 37.7749, "lon": -122.4194},
     {"continent": "América do Norte", "country": "EUA", "city": "Nova Orleans", "lat": 29.9511, "lon": -90.0715},
     {"continent": "América do Norte", "country": "EUA", "city": "Boston", "lat": 42.3601, "lon": -71.0589},
+    {"continent": "América do Norte", "country": "EUA", "city": "Aspen", "lat": 39.1911, "lon": -106.8175}, # Vórtice Financeiro
+    {"continent": "América do Norte", "country": "EUA", "city": "Sedona", "lat": 34.8697, "lon": -111.7610}, # Vórtice Energético
     {"continent": "América do Norte", "country": "México", "city": "Cidade do México", "lat": 19.4326, "lon": -99.1332},
     {"continent": "América do Norte", "country": "México", "city": "Cancún", "lat": 21.1619, "lon": -86.8515},
+    {"continent": "América do Norte", "country": "México", "city": "Tulum", "lat": 20.2114, "lon": -87.4654}, # Vórtice Energético
+
+    # --- AMÉRICA CENTRAL & CARIBE ---
     {"continent": "América Central", "country": "Costa Rica", "city": "São José", "lat": 9.9281, "lon": -84.0907},
     {"continent": "Caribe", "country": "Bahamas", "city": "Nassau", "lat": 25.0443, "lon": -77.3504},
     {"continent": "Caribe", "country": "República Dominicana", "city": "Punta Cana", "lat": 18.5820, "lon": -68.4055},
     {"continent": "Caribe", "country": "Porto Rico", "city": "San Juan", "lat": 18.4655, "lon": -66.1057},
+    {"continent": "Caribe", "country": "São Bartolomeu", "city": "St. Barts", "lat": 17.9000, "lon": -62.8333}, # Vórtice Financeiro
+
+    # --- AMÉRICA DO SUL ---
     {"continent": "América do Sul", "country": "Brasil", "city": "Rio de Janeiro", "lat": -22.9068, "lon": -43.1729},
     {"continent": "América do Sul", "country": "Brasil", "city": "São Paulo", "lat": -23.5505, "lon": -46.6333},
     {"continent": "América do Sul", "country": "Brasil", "city": "Salvador", "lat": -12.9714, "lon": -38.5014},
@@ -39,7 +47,7 @@ PREMIUM_CITIES = [
     {"continent": "América do Sul", "country": "Equador", "city": "Quito", "lat": -0.1807, "lon": -78.4678},
     {"continent": "América do Sul", "country": "Equador", "city": "Ilhas Galápagos", "lat": -0.7437, "lon": -90.3136},
 
-    # EUROPA
+    # --- EUROPA ---
     {"continent": "Europa", "country": "Islândia", "city": "Reykjavik", "lat": 64.1466, "lon": -21.9426},
     {"continent": "Europa", "country": "Portugal", "city": "Lisboa", "lat": 38.7223, "lon": -9.1393},
     {"continent": "Europa", "country": "Portugal", "city": "Porto", "lat": 41.1579, "lon": -8.6291},
@@ -65,6 +73,7 @@ PREMIUM_CITIES = [
     {"continent": "Europa", "country": "Bélgica", "city": "Bruxelas", "lat": 50.8503, "lon": 4.3517},
     {"continent": "Europa", "country": "Reino Unido", "city": "Londres", "lat": 51.5074, "lon": -0.1278},
     {"continent": "Europa", "country": "Reino Unido", "city": "Edimburgo", "lat": 55.9533, "lon": -3.1883},
+    {"continent": "Europa", "country": "Reino Unido", "city": "Glastonbury", "lat": 51.1463, "lon": -2.7153}, # Vórtice Energético
     {"continent": "Europa", "country": "Irlanda", "city": "Dublin", "lat": 53.3498, "lon": -6.2603},
     {"continent": "Europa", "country": "Dinamarca", "city": "Copenhaga", "lat": 55.6761, "lon": 12.5683},
     {"continent": "Europa", "country": "Suécia", "city": "Estocolmo", "lat": 59.3293, "lon": 18.0686},
@@ -80,8 +89,9 @@ PREMIUM_CITIES = [
     {"continent": "Europa", "country": "Hungria", "city": "Budapeste", "lat": 47.4979, "lon": 19.0402},
     {"continent": "Europa", "country": "República Checa", "city": "Praga", "lat": 50.0755, "lon": 14.4378},
     {"continent": "Europa", "country": "Polónia", "city": "Varsóvia", "lat": 52.2297, "lon": 21.0122},
+    {"continent": "Europa", "country": "Luxemburgo", "city": "Luxemburgo", "lat": 49.8153, "lon": 6.1296}, # Vórtice Financeiro
 
-    # ÁFRICA
+    # --- ÁFRICA ---
     {"continent": "África", "country": "Marrocos", "city": "Marraquexe", "lat": 31.6295, "lon": -7.9811},
     {"continent": "África", "country": "Marrocos", "city": "Casablanca", "lat": 33.5731, "lon": -7.5898},
     {"continent": "África", "country": "Egito", "city": "Cairo", "lat": 30.0444, "lon": 31.2357},
@@ -96,15 +106,16 @@ PREMIUM_CITIES = [
     {"continent": "África", "country": "Cabo Verde", "city": "Praia", "lat": 14.9315, "lon": -23.5125},
     {"continent": "África", "country": "Cabo Verde", "city": "Sal", "lat": 16.7412, "lon": -22.9441},
 
-    # MÉDIO ORIENTE
+    # --- MÉDIO ORIENTE ---
     {"continent": "Médio Oriente", "country": "Emirados Árabes", "city": "Dubai", "lat": 25.2048, "lon": 55.2708},
     {"continent": "Médio Oriente", "country": "Emirados Árabes", "city": "Abu Dhabi", "lat": 24.4539, "lon": 54.3773},
     {"continent": "Médio Oriente", "country": "Catar", "city": "Doha", "lat": 25.2854, "lon": 51.5310},
     {"continent": "Médio Oriente", "country": "Arábia Saudita", "city": "Riade", "lat": 24.7136, "lon": 46.6753},
     {"continent": "Médio Oriente", "country": "Israel", "city": "Tel Aviv", "lat": 32.0853, "lon": 34.7818},
+    {"continent": "Médio Oriente", "country": "Israel", "city": "Jerusalém", "lat": 31.7683, "lon": 35.2137},
     {"continent": "Médio Oriente", "country": "Jordânia", "city": "Petra", "lat": 30.3285, "lon": 35.4444},
 
-    # ÁSIA
+    # --- ÁSIA ---
     {"continent": "Ásia", "country": "Índia", "city": "Mumbai", "lat": 19.0760, "lon": 72.8777},
     {"continent": "Ásia", "country": "Índia", "city": "Nova Deli", "lat": 28.6139, "lon": 77.2090},
     {"continent": "Ásia", "country": "Índia", "city": "Goa", "lat": 15.2993, "lon": 74.1240},
@@ -122,23 +133,25 @@ PREMIUM_CITIES = [
     {"continent": "Ásia", "country": "China", "city": "Pequim", "lat": 39.9042, "lon": 116.4074},
     {"continent": "Ásia", "country": "China", "city": "Xangai", "lat": 31.2304, "lon": 121.4737},
     {"continent": "Ásia", "country": "China", "city": "Hong Kong", "lat": 22.3193, "lon": 114.1694},
+    {"continent": "Ásia", "country": "China (Macau)", "city": "Macau", "lat": 22.1987, "lon": 113.5439}, # Vórtice Financeiro
     {"continent": "Ásia", "country": "Japão", "city": "Tóquio", "lat": 35.6762, "lon": 139.6503},
     {"continent": "Ásia", "country": "Japão", "city": "Quioto", "lat": 35.0116, "lon": 135.7681},
     {"continent": "Ásia", "country": "Japão", "city": "Osaka", "lat": 34.6937, "lon": 135.5023},
     {"continent": "Ásia", "country": "Coreia do Sul", "city": "Seul", "lat": 37.5665, "lon": 126.9780},
     {"continent": "Ásia", "country": "Taiwan", "city": "Taipé", "lat": 25.0330, "lon": 121.5654},
 
-    # OCEANIA
+    # --- OCEANIA & PACÍFICO ---
     {"continent": "Oceania", "country": "Austrália", "city": "Sydney", "lat": -33.8688, "lon": 151.2093},
     {"continent": "Oceania", "country": "Austrália", "city": "Melbourne", "lat": -37.8136, "lon": 144.9631},
     {"continent": "Oceania", "country": "Austrália", "city": "Brisbane", "lat": -27.4698, "lon": 153.0251},
     {"continent": "Oceania", "country": "Austrália", "city": "Perth", "lat": -31.9505, "lon": 115.8605},
+    {"continent": "Oceania", "country": "Austrália", "city": "Uluru", "lat": -25.3444, "lon": 131.0369}, # Vórtice Energético
     {"continent": "Oceania", "country": "Nova Zelândia", "city": "Auckland", "lat": -36.8485, "lon": 174.7633},
     {"continent": "Oceania", "country": "Nova Zelândia", "city": "Queenstown", "lat": -45.0312, "lon": 168.6626},
     {"continent": "Oceania", "country": "Fiji", "city": "Nadi", "lat": -17.8065, "lon": 177.4136},
     {"continent": "Oceania", "country": "Polinésia Francesa", "city": "Bora Bora", "lat": -16.5004, "lon": -151.7415},
     {"continent": "Oceania", "country": "Polinésia Francesa", "city": "Taiti", "lat": -17.6509, "lon": -149.4260},
-    {"continent": "Oceania", "country": "Havaí", "city": "Honolulu", "lat": 21.3069, "lon": -157.8583},
+    {"continent": "Oceania", "country": "Havaí", "city": "Honolulu", "lat": 21.3069, "lon": -157.8583}
 ]
 
 def calculate_solar_return(jd_natal, target_year):
