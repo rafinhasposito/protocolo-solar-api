@@ -5,15 +5,14 @@ from datetime import datetime
 import requests
 from house_scanner import (
     calculate_solar_return,
-    scan_all_houses,
-    find_best_city_for_house  # se quiser manter a rota antiga
+    find_all_cities_for_year   # função principal que retorna todas as casas
 )
 
 app = Flask(__name__)
 CORS(app)
 
 def geocode_place(place_name):
-    """Obtém latitude/longitude de um local usando Nominatim."""
+    """Obtém latitude/longitude de um local usando Nominatim (usado apenas para local de nascimento)."""
     url = "https://nominatim.openstreetmap.org/search"
     params = {
         "q": place_name,
@@ -33,13 +32,15 @@ def geocode_place(place_name):
 
 @app.route('/calculate_chart', methods=['POST'])
 def calculate_chart():
-    # (mantenha sua função original, ou pode remover se não for usar)
-    # Para simplificar, estou mantendo a original, mas você pode copiar a que já tem.
-    # Coloque aqui a sua implementação existente.
-    pass
+    # Se você não usa essa rota, pode remover ou manter como stub
+    return jsonify({"message": "Rota não implementada"}), 501
 
 @app.route('/find_city_for_house', methods=['POST'])
 def find_city_for_house_endpoint():
+    """
+    Rota mantida para compatibilidade com versões anteriores.
+    Retorna apenas a cidade da casa solicitada.
+    """
     try:
         data = request.get_json()
         required_fields = ['name', 'place_of_birth', 'dob', 'time', 'target_year', 'target_house']
@@ -47,28 +48,28 @@ def find_city_for_house_endpoint():
             if field not in data:
                 return jsonify({"error": f"Campo obrigatório: {field}"}), 400
 
-        # Geocode local de nascimento
-        lat_natal, lon_natal = geocode_place(data['place_of_birth'])
-        if lat_natal is None:
-            lat_natal = -23.5505
-            lon_natal = -46.6333
+        target_year = int(data['target_year'])
+        target_house = int(data['target_house'])
 
-        # Adicionar latitude aos dados
-        data['latitude'] = lat_natal
-        data['longitude'] = lon_natal
+        # Usa a função principal para obter todas as casas
+        todas_as_casas = find_all_cities_for_year(data, target_year)
 
-        result = find_best_city_for_house(
-            natal_data=data,
-            target_year=int(data['target_year']),
-            target_house=int(data['target_house'])
-        )
-        return jsonify(result)
+        # Extrai a casa desejada
+        resultado = todas_as_casas.get(target_house)
+
+        if resultado is None:
+            return jsonify({"error": "Nenhuma cidade encontrada para esta casa"}), 404
+
+        return jsonify(resultado)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/find_all_cities', methods=['POST'])
 def find_all_cities_endpoint():
+    """
+    Nova rota que retorna as cidades para todas as 12 casas de uma só vez.
+    """
     try:
         data = request.get_json()
         required_fields = ['name', 'place_of_birth', 'dob', 'time', 'target_year']
@@ -76,21 +77,10 @@ def find_all_cities_endpoint():
             if field not in data:
                 return jsonify({"error": f"Campo obrigatório: {field}"}), 400
 
-        # Converter data/hora
-        birth_date = datetime.strptime(data['dob'] + ' ' + data['time'], '%d/%m/%Y %H:%M')
-        jd_natal = swe.julday(birth_date.year, birth_date.month, birth_date.day,
-                              birth_date.hour + birth_date.minute/60.0)
-
-        # Geocode local de nascimento
-        lat_natal, lon_natal = geocode_place(data['place_of_birth'])
-        if lat_natal is None:
-            lat_natal = -23.5505
-
         target_year = int(data['target_year'])
-        jd_return = calculate_solar_return(jd_natal, target_year)
 
-        # Chamar a função que varre todas as casas
-        results = scan_all_houses(jd_return, lat_natal, step=2.0)
+        # Chama a função principal do motor premium
+        results = find_all_cities_for_year(data, target_year)
 
         return jsonify({"results": results})
 
