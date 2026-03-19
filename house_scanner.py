@@ -89,19 +89,27 @@ def calculate_solar_return(jd_natal, target_year):
     return swe.solcross_ut(sun_longitude, jd_start)
 
 def calculate_house_position(jd_ut, longitude, latitude):
-    """Verifica a Casa Astrológica com base nas coordenadas."""
+    """Verifica a Casa Astrológica com precisão corrigida para a matriz da Swiss Ephemeris."""
     cusps, ascmc = swe.houses_ex(jd_ut, latitude, longitude, b'P')
-    cusps_list = list(cusps) + [cusps[0] + 360]
     sun_pos, _ = swe.calc_ut(jd_ut, swe.SUN)
-    sun_adj = sun_pos[0]
+    sun_lon = sun_pos[0]
     
-    if sun_adj < cusps_list[0]:
-        sun_adj += 360
+    # A Swiss Ephemeris usa índices de 1 a 12 para as casas (índice 0 é nulo)
+    for i in range(1, 13):
+        cusp_start = cusps[i]
+        cusp_end = cusps[1] if i == 12 else cusps[i+1]
         
-    for i in range(12):
-        if cusps_list[i] <= sun_adj < cusps_list[i+1]:
-            return i+1
-    return 1
+        # O círculo do zodíaco tem 360 graus. Se a casa cruzar o ponto zero (Áries), 
+        # a lógica matemática precisa inverter para não quebrar.
+        if cusp_start < cusp_end:
+            if cusp_start <= sun_lon < cusp_end:
+                return i
+        else:
+            # Atravessa o grau 360 (Ex: Casa começa no grau 350 e termina no grau 10)
+            if sun_lon >= cusp_start or sun_lon < cusp_end:
+                return i
+                
+    return 1 # Fallback de segurança quântica
 
 def scan_premium_houses(jd_return):
     """
