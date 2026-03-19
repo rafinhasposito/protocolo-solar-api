@@ -18,7 +18,7 @@ PREMIUM_CITIES = [
     {"continent": "América do Norte", "country": "EUA", "city": "Las Vegas", "lat": 36.1699, "lon": -115.1398},
     {"continent": "América do Norte", "country": "México", "city": "Cidade do México", "lat": 19.4326, "lon": -99.1332},
     {"continent": "América do Norte", "country": "EUA", "city": "Houston", "lat": 29.7604, "lon": -95.3698},
-    {"continent": "América do Norte", "country": "EUA", "city": "Chicago", "lat": 29.7604, "lon": -95.3698},
+    {"continent": "América do Norte", "country": "EUA", "city": "Chicago", "lat": 41.8781, "lon": -87.6298},
     {"continent": "América do Norte", "country": "México", "city": "Cancún", "lat": 21.1619, "lon": -86.8515},
     {"continent": "América do Norte", "country": "EUA", "city": "Miami", "lat": 25.7617, "lon": -80.1918},
     {"continent": "América do Norte", "country": "Canadá", "city": "Toronto", "lat": 43.6510, "lon": -79.3470},
