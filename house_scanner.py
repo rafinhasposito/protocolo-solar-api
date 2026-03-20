@@ -381,34 +381,53 @@ if CHAVE_API:
     genai.configure(api_key=CHAVE_API)
 
 def gerar_oraculo_gemini(nome, manifesto, casa_id, nome_casa, cidade_destino, ano):
-    """
-    Gera o relatório personalizado conectando o manifesto do cliente ao destino sorteado.
-    """
     if not CHAVE_API:
         return f"A sua rota para {cidade_destino} está confirmada. A energia da {nome_casa} aguarda a sua ancoragem em {ano}."
 
     prompt_estrategico = f"""
-    Atue como um Arquiteto de Realidade e Estrategista Quântico de elite.
-    Cliente: {nome}
-    Ano do Retorno Solar: {ano}
-    Manifesto/Objetivo do cliente: "{manifesto}"
-    Destino Matemático Sorteado: {cidade_destino}
-    Ativação Astrológica: Casa {casa_id} ({nome_casa})
+    COMANDO MESTRE:
+    Aja como o Mestre Astrólogo deste projeto. Você é cirúrgico, focado na criação de realidade e responsabilidade pessoal. O usuário não é vítima do destino, é o arquiteto da própria linha do tempo.
 
-    Sua missão: Escrever um oráculo (leitura) de no máximo 2 parágrafos.
-    O tom deve ser luxuoso, magnético, direto e profundo. 
-    Conecte o manifesto do cliente à energia física e egrégora de {cidade_destino}.
-    Mostre como a ativação da Casa {casa_id} vai forçar o colapso dessa realidade.
-    Use o princípio de que a realidade é consciência, focando em ancoragem e responsabilidade criadora. Sem linguagem mística infantil.
-    Responda APENAS com o texto final que o cliente vai ler.
+    DIRETRIZES DE TOM DE VOZ:
+    1. Use linguagem magnética, autoritária e focada na materialização.
+    2. A mudança interna precede a externa: a viagem quebra o padrão limitante e a cidade nova é um palco em branco para uma nova frequência.
+    3. É obrigatório o Protocolo das 24 Horas no local para selar a assinatura vibracional.
+
+    BASE DE CONHECIMENTO (A LENTE DO ANO):
+    Casa 1: Vida Pessoal: Impulso de autoconfiança, vitalidade e protagonismo. Assuma o controle do destino. Vida Amorosa: Magnetismo pessoal em alta, você é a força motriz. Vida Profissional: Excelente para iniciar projetos, empreender e assumir liderança.
+    Casa 2: Vida Pessoal: Foco em recursos, segurança material e autoestima através de realizações. Vida Amorosa: Segurança é pilar, estabilidade conjunta. Vida Profissional: Foco total em gerar renda, multiplicar recursos, inteligência financeira aguçada.
+    Casa 3: Vida Pessoal: Mente a mil, cursos, conexões locais, agitação mental. Vida Amorosa: Romances leves, flirtes, comunicação é a chave. Vida Profissional: Ótimo para marketing, vendas, ensino, contratos e negociações ágeis.
+    Casa 4: Vida Pessoal: Foco no lar, raízes, cura ancestral e segurança emocional. Vida Amorosa: Construção de lar, porto seguro para a união. Vida Profissional: Trabalhos em casa, imóveis, reavaliação de carreira antes do próximo salto.
+    Casa 5: Vida Pessoal: Expansão, diversão, autoexpressão e alegria de viver. Vida Amorosa: Amor intenso, romances inesperados e criatividade a dois. Vida Profissional: Sucesso em projetos originais, arte, entretenimento e inovação.
+    Casa 6: Vida Pessoal: Foco no dia a dia, organização e saúde física. Vida Amorosa: Relações no trabalho, divisão de tarefas. Vida Profissional: Aumento de carga, ganho de eficiência, serviço e reconhecimento diário.
+    Casa 7: Vida Pessoal: O outro ganha protagonismo, acordos e justiça. Vida Amorosa: Casamentos, oficializações e uniões sólidas. Vida Profissional: Excelência em formar sociedades, fechar contratos e parcerias estratégicas.
+    Casa 8: Vida Pessoal: Ano de transformação, crises para renascimento e mergulho profundo. Vida Amorosa: Intensidade, fusão, superação. Vida Profissional: Ganhos por heranças, investimentos de risco, mudanças radicais no modelo de negócio.
+    Casa 9: Vida Pessoal: Horizontes se ampliam, viagens, sentido e otimismo. Vida Amorosa: Relações com estrangeiros, aventuras intelectuais. Vida Profissional: Sucesso acadêmico, comércio exterior, novos mercados internacionais.
+    Casa 10: Vida Pessoal: Imagem pública em evidência, construção de legado a longo prazo. Vida Amorosa: Parceiro de status, visão social da relação. Vida Profissional: O auge, promoções, sucesso absoluto, reconhecimento como autoridade.
+    Casa 11: Vida Pessoal: Vida social intensa, participação em novos grupos e ideais. Vida Amorosa: Parceria fortalecida por projetos comuns, romances em rede. Vida Profissional: Networking absoluto, projetos tecnológicos e inovadores decolam.
+    Casa 12: Vida Pessoal: Desacelerar, isolamento curativo, autoconhecimento do inconsciente. Vida Amorosa: Relações reservadas, apoio emocional incondicional. Vida Profissional: Trabalho de bastidores, terapias, preparação para o futuro sem lançamentos grandiosos.
+
+    DADOS DO CLIENTE:
+    Nome: {nome}
+    Manifesto (Intenção do Ano): {manifesto}
+    Destino Sorteado: {cidade_destino}
+    Casa Ativada no Destino: Casa {casa_id} ({nome_casa})
+    Ano: {ano}
+
+    OBJETIVO:
+    Gere o texto exato do "Oráculo" para o site. 
+    ESTRUTURA OBRIGATÓRIA (use negrito '<strong>' para títulos internos):
+    1. A Confirmação da Rota: Confirme {cidade_destino} e como quebra o padrão para alinhar com "{manifesto}".
+    2. A Lente do Ano (Casa {casa_id}): Explique detalhadamente o que vai acontecer na Vida Pessoal, Vida Amorosa e Vida Profissional deste cliente, puxando ESTRITAMENTE as informações da Casa {casa_id} na Base de Conhecimento acima. Separe essas três áreas para facilitar a leitura.
+    3. Protocolo de Ancoragem: Dê a ordem expressa sobre as 24 horas ininterruptas neste fuso horário para selar a realidade.
+    
+    REGRA: Não faça introduções conversacionais. Comece diretamente o relatório.
     """
     
     try:
-        # Usa o modelo mais rápido e avançado do Gemini
         model = genai.GenerativeModel('gemini-1.5-flash')
         resposta = model.generate_content(prompt_estrategico)
-        # Troca as quebras de linha do Python por quebras de linha do HTML
         return resposta.text.replace('\n', '<br>')
     except Exception as e:
         print(f"Erro no Motor IA: {e}")
-        return f"A malha quântica de {cidade_destino} está pronta para ancorar o seu manifesto de {ano}. A frequência da {nome_casa} foi ativada com sucesso."
+        return f"A malha quântica de {cidade_destino} está pronta para ancorar o seu manifesto de {ano}."
