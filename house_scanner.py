@@ -368,3 +368,48 @@ def find_all_cities_for_year(natal_data, target_year):
     except Exception as e:
         print(f"Erro: {e}")
         raise e
+
+import os
+import google.generativeai as genai
+
+# =====================================================================
+# MOTOR DE INTELIGÊNCIA ARTIFICIAL (GEMINI) - MODO HIGH-TICKET
+# =====================================================================
+
+# O sistema puxa a chave trancada no cofre do Render automaticamente
+CHAVE_API = os.environ.get("GEMINI_API_KEY")
+if CHAVE_API:
+    genai.configure(api_key=CHAVE_API)
+
+def gerar_oraculo_gemini(nome, manifesto, casa_id, nome_casa, cidade_destino, ano):
+    """
+    Gera o relatório personalizado conectando o manifesto do cliente ao destino sorteado.
+    """
+    if not CHAVE_API:
+        return f"A sua rota para {cidade_destino} está confirmada. A energia da {nome_casa} aguarda a sua ancoragem em {ano}."
+
+    prompt_estrategico = f"""
+    Atue como um Arquiteto de Realidade e Estrategista Quântico de elite.
+    Cliente: {nome}
+    Ano do Retorno Solar: {ano}
+    Manifesto/Objetivo do cliente: "{manifesto}"
+    Destino Matemático Sorteado: {cidade_destino}
+    Ativação Astrológica: Casa {casa_id} ({nome_casa})
+
+    Sua missão: Escrever um oráculo (leitura) de no máximo 2 parágrafos.
+    O tom deve ser luxuoso, magnético, direto e profundo. 
+    Conecte o manifesto do cliente à energia física e egrégora de {cidade_destino}.
+    Mostre como a ativação da Casa {casa_id} vai forçar o colapso dessa realidade.
+    Use o princípio de que a realidade é consciência, focando em ancoragem e responsabilidade criadora. Sem linguagem mística infantil.
+    Responda APENAS com o texto final que o cliente vai ler.
+    """
+    
+    try:
+        # Usa o modelo mais rápido e avançado do Gemini
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        resposta = model.generate_content(prompt_estrategico)
+        # Troca as quebras de linha do Python por quebras de linha do HTML
+        return resposta.text.replace('\n', '<br>')
+    except Exception as e:
+        print(f"Erro no Motor IA: {e}")
+        return f"A malha quântica de {cidade_destino} está pronta para ancorar o seu manifesto de {ano}. A frequência da {nome_casa} foi ativada com sucesso."
