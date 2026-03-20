@@ -5,7 +5,8 @@ from datetime import datetime
 import requests
 from house_scanner import (
     calculate_solar_return,
-    find_all_cities_for_year   # função principal que retorna todas as casas
+    find_all_cities_for_year,
+    gerar_oraculo_gemini
 )
 
 app = Flask(__name__)
@@ -68,7 +69,7 @@ def find_city_for_house_endpoint():
 @app.route('/find_all_cities', methods=['POST'])
 def find_all_cities_endpoint():
     """
-    Nova rota que retorna as cidades para todas as 12 casas de uma só vez.
+    Nova rota que retorna as cidades para todas as 12 casas de uma só vez e aciona a IA.
     """
     try:
         data = request.get_json()
@@ -82,7 +83,27 @@ def find_all_cities_endpoint():
         # Chama a função principal do motor premium
         results = find_all_cities_for_year(data, target_year)
 
-        return jsonify({"results": results})
+        # Captura os dados para o Oráculo
+        manifesto = data.get('intent', 'Expansão e Sucesso')
+        alvo_id = int(data.get('alvoId', 1))
+        nome_cliente = data['name']
+        
+        # Extrai a cidade de destino
+        cidade_destino = "Local Desconhecido"
+        if alvo_id in results and results[alvo_id].get('city'):
+            cidade_destino = results[alvo_id]['city'].get('city') or results[alvo_id]['city'].get('display_name', "Local")
+        
+        nomes_casas = {
+            1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz", 
+            5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto", 
+            9: "A Expansão", 10: "O Governante", 11: "O Visionário", 12: "O Silêncio"
+        }
+        nome_casa = nomes_casas.get(alvo_id, f"Casa {alvo_id}")
+        
+        # Aciona o Gemini
+        oraculo_ia = gerar_oraculo_gemini(nome_cliente, manifesto, alvo_id, nome_casa, cidade_destino, target_year)
+
+        return jsonify({"results": results, "oraculo": oraculo_ia})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
