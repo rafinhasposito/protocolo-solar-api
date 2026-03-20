@@ -3,3 +3,4 @@ geopy
 flask-cors
 pyswisseph
 requests
+google-generativeai==0.8.3
