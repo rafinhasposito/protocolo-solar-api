@@ -1,5 +1,7 @@
 import swisseph as swe
 from datetime import datetime
+import os
+import google.generativeai as genai
 
 # ========== CONFIGURAÇÃO DA SWISS EPHEMERIS ==========
 swe.set_ephe_path('/usr/share/sweph/ephe')
@@ -13,50 +15,50 @@ PREMIUM_CITIES = [
     # 1. BRASIL – TODAS AS CAPITAIS + PRINCIPAIS CIDADES POR ESTADO
     # -----------------------------------------------------------------
     {"continent": "América do Sul", "country": "Brasil", "city": "Manaus", "lat": -3.1190, "lon": -60.0217},
-{"continent": "América do Sul", "country": "Brasil", "city": "Belém", "lat": -1.4558, "lon": -48.5039},
-{"continent": "América do Sul", "country": "Brasil", "city": "Porto Velho", "lat": -8.7608, "lon": -63.8999},
-{"continent": "América do Sul", "country": "Brasil", "city": "São Luís", "lat": -2.5297, "lon": -44.3028},
-{"continent": "América do Sul", "country": "Brasil", "city": "Teresina", "lat": -5.0892, "lon": -42.8019},
-{"continent": "América do Sul", "country": "Brasil", "city": "Fortaleza", "lat": -3.7172, "lon": -38.5433},
-{"continent": "América do Sul", "country": "Brasil", "city": "Natal", "lat": -5.7793, "lon": -35.2009},
-{"continent": "América do Sul", "country": "Brasil", "city": "João Pessoa", "lat": -7.1150, "lon": -34.8610},
-{"continent": "América do Sul", "country": "Brasil", "city": "Recife", "lat": -8.0476, "lon": -34.8770},
-{"continent": "América do Sul", "country": "Brasil", "city": "Maceió", "lat": -9.6659, "lon": -35.7350},
-{"continent": "América do Sul", "country": "Brasil", "city": "Aracaju", "lat": -10.9472, "lon": -37.0731},
-{"continent": "América do Sul", "country": "Brasil", "city": "Salvador", "lat": -12.9714, "lon": -38.5014},
-{"continent": "América do Sul", "country": "Brasil", "city": "Cuiabá", "lat": -15.6010, "lon": -56.0974},
-{"continent": "América do Sul", "country": "Brasil", "city": "Campo Grande", "lat": -20.4697, "lon": -54.6201},
-{"continent": "América do Sul", "country": "Brasil", "city": "Goiânia", "lat": -16.6864, "lon": -49.2643},
-{"continent": "América do Sul", "country": "Brasil", "city": "Brasília", "lat": -15.7975, "lon": -47.8919},
-{"continent": "América do Sul", "country": "Brasil", "city": "Belo Horizonte", "lat": -19.9167, "lon": -43.9345},
-{"continent": "América do Sul", "country": "Brasil", "city": "Vitória", "lat": -20.3155, "lon": -40.3128},
-{"continent": "América do Sul", "country": "Brasil", "city": "Rio de Janeiro", "lat": -22.9068, "lon": -43.1729},
-{"continent": "América do Sul", "country": "Brasil", "city": "São Paulo", "lat": -23.5505, "lon": -46.6333},
-{"continent": "América do Sul", "country": "Brasil", "city": "Curitiba", "lat": -25.4296, "lon": -49.2719},
-{"continent": "América do Sul", "country": "Brasil", "city": "Florianópolis", "lat": -27.5954, "lon": -48.5480},
-{"continent": "América do Sul", "country": "Brasil", "city": "Porto Alegre", "lat": -30.0346, "lon": -51.2177},
-{"continent": "América do Sul", "country": "Brasil", "city": "Santos", "lat": -23.9535, "lon": -46.3350},
-{"continent": "América do Sul", "country": "Brasil", "city": "Blumenau", "lat": -26.9185, "lon": -49.0659},
-{"continent": "América do Sul", "country": "Brasil", "city": "Itajaí", "lat": -26.9081, "lon": -48.6707},
-{"continent": "América do Sul", "country": "Brasil", "city": "Balneário Camboriú", "lat": -26.9917, "lon": -48.6333},
-{"continent": "América do Sul", "country": "Brasil", "city": "Foz do Iguaçu", "lat": -25.5478, "lon": -54.5882},
-{"continent": "América do Sul", "country": "Brasil", "city": "Juazeiro do Norte", "lat": -7.2133, "lon": -39.3151},
-{"continent": "América do Sul", "country": "Brasil", "city": "Campina Grande", "lat": -7.2219, "lon": -35.8739},
-{"continent": "América do Sul", "country": "Brasil", "city": "Caruaru", "lat": -8.2835, "lon": -35.9698},
-{"continent": "América do Sul", "country": "Brasil", "city": "Ilhéus", "lat": -14.7939, "lon": -39.0460},
-{"continent": "América do Sul", "country": "Brasil", "city": "Porto Seguro", "lat": -16.4435, "lon": -39.0643},
-{"continent": "América do Sul", "country": "Brasil", "city": "Cabo Frio", "lat": -22.8794, "lon": -42.0192},
-{"continent": "América do Sul", "country": "Brasil", "city": "Búzios", "lat": -22.7478, "lon": -41.8819},
-{"continent": "América do Sul", "country": "Brasil", "city": "Angra dos Reis", "lat": -23.0067, "lon": -44.3185},
-{"continent": "América do Sul", "country": "Brasil", "city": "Paraty", "lat": -23.2192, "lon": -44.7153},
-{"continent": "América do Sul", "country": "Brasil", "city": "Ubatuba", "lat": -23.4372, "lon": -45.0700},
-{"continent": "América do Sul", "country": "Brasil", "city": "Ilhabela", "lat": -23.7785, "lon": -45.3552},
-{"continent": "América do Sul", "country": "Brasil", "city": "Guarujá", "lat": -23.9935, "lon": -46.2567},
-{"continent": "América do Sul", "country": "Brasil", "city": "Bertioga", "lat": -23.8546, "lon": -46.1383},
-{"continent": "América do Sul", "country": "Brasil", "city": "São Sebastião", "lat": -23.8027, "lon": -45.4042},
-{"continent": "América do Sul", "country": "Brasil", "city": "Caraguatatuba", "lat": -23.6203, "lon": -45.4131},
-{"continent": "América do Sul", "country": "Brasil", "city": "Corumbá", "lat": -19.0097, "lon": -57.6514},
-{"continent": "América do Sul", "country": "Brasil", "city": "Fernando de Noronha", "lat": -3.8403, "lon": -32.4297}
+    {"continent": "América do Sul", "country": "Brasil", "city": "Belém", "lat": -1.4558, "lon": -48.5039},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Porto Velho", "lat": -8.7608, "lon": -63.8999},
+    {"continent": "América do Sul", "country": "Brasil", "city": "São Luís", "lat": -2.5297, "lon": -44.3028},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Teresina", "lat": -5.0892, "lon": -42.8019},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Fortaleza", "lat": -3.7172, "lon": -38.5433},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Natal", "lat": -5.7793, "lon": -35.2009},
+    {"continent": "América do Sul", "country": "Brasil", "city": "João Pessoa", "lat": -7.1150, "lon": -34.8610},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Recife", "lat": -8.0476, "lon": -34.8770},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Maceió", "lat": -9.6659, "lon": -35.7350},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Aracaju", "lat": -10.9472, "lon": -37.0731},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Salvador", "lat": -12.9714, "lon": -38.5014},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Cuiabá", "lat": -15.6010, "lon": -56.0974},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Campo Grande", "lat": -20.4697, "lon": -54.6201},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Goiânia", "lat": -16.6864, "lon": -49.2643},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Brasília", "lat": -15.7975, "lon": -47.8919},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Belo Horizonte", "lat": -19.9167, "lon": -43.9345},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Vitória", "lat": -20.3155, "lon": -40.3128},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Rio de Janeiro", "lat": -22.9068, "lon": -43.1729},
+    {"continent": "América do Sul", "country": "Brasil", "city": "São Paulo", "lat": -23.5505, "lon": -46.6333},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Curitiba", "lat": -25.4296, "lon": -49.2719},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Florianópolis", "lat": -27.5954, "lon": -48.5480},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Porto Alegre", "lat": -30.0346, "lon": -51.2177},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Santos", "lat": -23.9535, "lon": -46.3350},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Blumenau", "lat": -26.9185, "lon": -49.0659},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Itajaí", "lat": -26.9081, "lon": -48.6707},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Balneário Camboriú", "lat": -26.9917, "lon": -48.6333},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Foz do Iguaçu", "lat": -25.5478, "lon": -54.5882},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Juazeiro do Norte", "lat": -7.2133, "lon": -39.3151},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Campina Grande", "lat": -7.2219, "lon": -35.8739},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Caruaru", "lat": -8.2835, "lon": -35.9698},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Ilhéus", "lat": -14.7939, "lon": -39.0460},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Porto Seguro", "lat": -16.4435, "lon": -39.0643},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Cabo Frio", "lat": -22.8794, "lon": -42.0192},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Búzios", "lat": -22.7478, "lon": -41.8819},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Angra dos Reis", "lat": -23.0067, "lon": -44.3185},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Paraty", "lat": -23.2192, "lon": -44.7153},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Ubatuba", "lat": -23.4372, "lon": -45.0700},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Ilhabela", "lat": -23.7785, "lon": -45.3552},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Guarujá", "lat": -23.9935, "lon": -46.2567},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Bertioga", "lat": -23.8546, "lon": -46.1383},
+    {"continent": "América do Sul", "country": "Brasil", "city": "São Sebastião", "lat": -23.8027, "lon": -45.4042},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Caraguatatuba", "lat": -23.6203, "lon": -45.4131},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Corumbá", "lat": -19.0097, "lon": -57.6514},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Fernando de Noronha", "lat": -3.8403, "lon": -32.4297}, # <--- VÍRGULA ADICIONADA AQUI
 
     # -----------------------------------------------------------------
     # 2. AMÉRICA DO NORTE (EUA, Canadá, México) – principais cidades
@@ -368,9 +370,6 @@ def find_all_cities_for_year(natal_data, target_year):
     except Exception as e:
         print(f"Erro: {e}")
         raise e
-
-import os
-import google.generativeai as genai
 
 # =====================================================================
 # MOTOR DE INTELIGÊNCIA ARTIFICIAL (GEMINI) - MODO HIGH-TICKET
