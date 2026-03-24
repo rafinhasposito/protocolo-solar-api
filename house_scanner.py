@@ -6,7 +6,7 @@ import google.generativeai as genai
 # ========== CONFIGURAÇÃO DA SWISS EPHEMERIS ==========
 swe.set_ephe_path('/usr/share/sweph/ephe')
 
-# ========== BANCO DE DADOS PREMIUM EXPANDIDO (350+ CIDADES) ==========
+# ========== BANCO DE DADOS PREMIUM EXPANDIDO (400+ CIDADES) ==========
 # A ordem da lista influencia a prioridade: cidades no topo são escolhidas primeiro
 # quando múltiplas cidades caem na mesma casa astrológica.
 PREMIUM_CITIES = [
@@ -58,7 +58,37 @@ PREMIUM_CITIES = [
     {"continent": "América do Sul", "country": "Brasil", "city": "São Sebastião", "lat": -23.8027, "lon": -45.4042},
     {"continent": "América do Sul", "country": "Brasil", "city": "Caraguatatuba", "lat": -23.6203, "lon": -45.4131},
     {"continent": "América do Sul", "country": "Brasil", "city": "Corumbá", "lat": -19.0097, "lon": -57.6514},
-    {"continent": "América do Sul", "country": "Brasil", "city": "Fernando de Noronha", "lat": -3.8403, "lon": -32.4297}, # <--- VÍRGULA ADICIONADA AQUI
+    {"continent": "América do Sul", "country": "Brasil", "city": "Fernando de Noronha", "lat": -3.8403, "lon": -32.4297},
+
+    # -----------------------------------------------------------------
+    # 1.5. AMÉRICA DO SUL (RESTANTE) E AMÉRICA CENTRAL / CARIBE
+    # -----------------------------------------------------------------
+    {"continent": "América do Sul", "country": "Argentina", "city": "Buenos Aires", "lat": -34.6037, "lon": -58.3816},
+    {"continent": "América do Sul", "country": "Argentina", "city": "Córdoba", "lat": -31.4201, "lon": -64.1888},
+    {"continent": "América do Sul", "country": "Argentina", "city": "Mendoza", "lat": -32.8895, "lon": -68.8458},
+    {"continent": "América do Sul", "country": "Argentina", "city": "Bariloche", "lat": -41.1335, "lon": -71.3103},
+    {"continent": "América do Sul", "country": "Chile", "city": "Santiago", "lat": -33.4489, "lon": -70.6693},
+    {"continent": "América do Sul", "country": "Chile", "city": "Valparaíso", "lat": -33.0456, "lon": -71.6197},
+    {"continent": "América do Sul", "country": "Uruguai", "city": "Montevidéu", "lat": -34.9011, "lon": -56.1645},
+    {"continent": "América do Sul", "country": "Uruguai", "city": "Punta del Este", "lat": -34.9667, "lon": -54.9500},
+    {"continent": "América do Sul", "country": "Colômbia", "city": "Bogotá", "lat": 4.7110, "lon": -74.0721},
+    {"continent": "América do Sul", "country": "Colômbia", "city": "Medellín", "lat": 6.2442, "lon": -75.5812},
+    {"continent": "América do Sul", "country": "Colômbia", "city": "Cartagena", "lat": 10.3910, "lon": -75.4794},
+    {"continent": "América do Sul", "country": "Peru", "city": "Lima", "lat": -12.0464, "lon": -77.0428},
+    {"continent": "América do Sul", "country": "Peru", "city": "Cusco", "lat": -13.5226, "lon": -71.9673},
+    {"continent": "América do Sul", "country": "Equador", "city": "Quito", "lat": -0.1807, "lon": -78.4678},
+    {"continent": "América do Sul", "country": "Bolívia", "city": "La Paz", "lat": -16.4897, "lon": -68.1193},
+    {"continent": "América do Sul", "country": "Paraguai", "city": "Assunção", "lat": -25.2637, "lon": -57.5759},
+    {"continent": "América do Sul", "country": "Venezuela", "city": "Caracas", "lat": 10.4806, "lon": -66.9036},
+    
+    {"continent": "América Central", "country": "Panamá", "city": "Cidade do Panamá", "lat": 8.9824, "lon": -79.5199},
+    {"continent": "América Central", "country": "Costa Rica", "city": "San José", "lat": 9.9281, "lon": -84.0907},
+    {"continent": "América Central", "country": "Guatemala", "city": "Cidade da Guatemala", "lat": 14.6349, "lon": -90.5069},
+    {"continent": "América Central", "country": "República Dominicana", "city": "Santo Domingo", "lat": 18.4861, "lon": -69.9312},
+    {"continent": "América Central", "country": "República Dominicana", "city": "Punta Cana", "lat": 18.5820, "lon": -68.4055},
+    {"continent": "América Central", "country": "Cuba", "city": "Havana", "lat": 23.1136, "lon": -82.3666},
+    {"continent": "América Central", "country": "Porto Rico", "city": "San Juan", "lat": 18.4655, "lon": -66.1057},
+    {"continent": "América Central", "country": "Bahamas", "city": "Nassau", "lat": 25.0443, "lon": -77.3504},
 
     # -----------------------------------------------------------------
     # 2. AMÉRICA DO NORTE (EUA, Canadá, México) – principais cidades
@@ -268,7 +298,7 @@ PREMIUM_CITIES = [
     {"continent": "Ásia", "country": "Japão", "city": "Tóquio", "lat": 35.6762, "lon": 139.6503},
     {"continent": "Ásia", "country": "Japão", "city": "Quioto", "lat": 35.0116, "lon": 135.7681},
     {"continent": "Ásia", "country": "Japão", "city": "Osaka", "lat": 34.6937, "lon": 135.5023},
-    {"continent": "Ásia", "country": "Japão", "city": "Hokkaido", "lat": 43.2203, "lon": 142.8635},  # aproximado
+    {"continent": "Ásia", "country": "Japão", "city": "Hokkaido", "lat": 43.2203, "lon": 142.8635},
     {"continent": "Ásia", "country": "Coreia do Sul", "city": "Seul", "lat": 37.5665, "lon": 126.9780},
     {"continent": "Ásia", "country": "Coreia do Sul", "city": "Busan", "lat": 35.1796, "lon": 129.0756},
     {"continent": "Ásia", "country": "Taiwan", "city": "Taipé", "lat": 25.0330, "lon": 121.5654},
@@ -337,7 +367,9 @@ def scan_premium_houses(jd_return):
                     "continent": city["continent"],
                     "display_name": f"{city['city']}, {city['country']}"
                 },
-                "longitude": city["lon"]
+                "longitude": city["lon"],
+                "lat": city["lat"],
+                "lon": city["lon"]
             }
             used_countries.add(city["country"])
 
@@ -354,7 +386,9 @@ def scan_premium_houses(jd_return):
                             "continent": city["continent"],
                             "display_name": f"{city['city']}, {city['country']}"
                         },
-                        "longitude": city["lon"]
+                        "longitude": city["lon"],
+                        "lat": city["lat"],
+                        "lon": city["lon"]
                     }
                     break
 
@@ -380,54 +414,27 @@ CHAVE_API = os.environ.get("GEMINI_API_KEY")
 if CHAVE_API:
     genai.configure(api_key=CHAVE_API)
 
-def gerar_oraculo_gemini(nome, manifesto, casa_id, nome_casa, cidade_destino, ano):
+def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, cidade_destino, ano):
+    # Se não tiver chave da API, retorna vazio para o HTML assumir a inteligência
     if not CHAVE_API:
-        return f"A sua rota para {cidade_destino} está confirmada. A energia da {nome_casa} aguarda a sua ancoragem em {ano}."
+        return ""
 
-    prompt_estrategico = f"""
-    COMANDO MESTRE:
-    Aja como o Mestre Astrólogo deste projeto. Você é cirúrgico, focado na criação de realidade e responsabilidade pessoal. O usuário não é vítima do destino, é o arquiteto da própria linha do tempo.
-
-    DIRETRIZES DE TOM DE VOZ:
-    1. Use linguagem magnética, autoritária e focada na materialização.
-    2. A mudança interna precede a externa: a viagem quebra o padrão limitante e a cidade nova é um palco em branco para uma nova frequência.
-    3. É obrigatório o Protocolo das 24 Horas no local para selar a assinatura vibracional.
-
-    BASE DE CONHECIMENTO (A LENTE DO ANO):
-    Casa 1: Vida Pessoal: Impulso de autoconfiança, vitalidade e protagonismo. Assuma o controle do destino. Vida Amorosa: Magnetismo pessoal em alta, você é a força motriz. Vida Profissional: Excelente para iniciar projetos, empreender e assumir liderança.
-    Casa 2: Vida Pessoal: Foco em recursos, segurança material e autoestima através de realizações. Vida Amorosa: Segurança é pilar, estabilidade conjunta. Vida Profissional: Foco total em gerar renda, multiplicar recursos, inteligência financeira aguçada.
-    Casa 3: Vida Pessoal: Mente a mil, cursos, conexões locais, agitação mental. Vida Amorosa: Romances leves, flirtes, comunicação é a chave. Vida Profissional: Ótimo para marketing, vendas, ensino, contratos e negociações ágeis.
-    Casa 4: Vida Pessoal: Foco no lar, raízes, cura ancestral e segurança emocional. Vida Amorosa: Construção de lar, porto seguro para a união. Vida Profissional: Trabalhos em casa, imóveis, reavaliação de carreira antes do próximo salto.
-    Casa 5: Vida Pessoal: Expansão, diversão, autoexpressão e alegria de viver. Vida Amorosa: Amor intenso, romances inesperados e criatividade a dois. Vida Profissional: Sucesso em projetos originais, arte, entretenimento e inovação.
-    Casa 6: Vida Pessoal: Foco no dia a dia, organização e saúde física. Vida Amorosa: Relações no trabalho, divisão de tarefas. Vida Profissional: Aumento de carga, ganho de eficiência, serviço e reconhecimento diário.
-    Casa 7: Vida Pessoal: O outro ganha protagonismo, acordos e justiça. Vida Amorosa: Casamentos, oficializações e uniões sólidas. Vida Profissional: Excelência em formar sociedades, fechar contratos e parcerias estratégicas.
-    Casa 8: Vida Pessoal: Ano de transformação, crises para renascimento e mergulho profundo. Vida Amorosa: Intensidade, fusão, superação. Vida Profissional: Ganhos por heranças, investimentos de risco, mudanças radicais no modelo de negócio.
-    Casa 9: Vida Pessoal: Horizontes se ampliam, viagens, sentido e otimismo. Vida Amorosa: Relações com estrangeiros, aventuras intelectuais. Vida Profissional: Sucesso acadêmico, comércio exterior, novos mercados internacionais.
-    Casa 10: Vida Pessoal: Imagem pública em evidência, construção de legado a longo prazo. Vida Amorosa: Parceiro de status, visão social da relação. Vida Profissional: O auge, promoções, sucesso absoluto, reconhecimento como autoridade.
-    Casa 11: Vida Pessoal: Vida social intensa, participação em novos grupos e ideais. Vida Amorosa: Parceria fortalecida por projetos comuns, romances em rede. Vida Profissional: Networking absoluto, projetos tecnológicos e inovadores decolam.
-    Casa 12: Vida Pessoal: Desacelerar, isolamento curativo, autoconhecimento do inconsciente. Vida Amorosa: Relações reservadas, apoio emocional incondicional. Vida Profissional: Trabalho de bastidores, terapias, preparação para o futuro sem lançamentos grandiosos.
-
-    DADOS DO CLIENTE:
-    Nome: {nome}
-    Manifesto (Intenção do Ano): {manifesto}
-    Destino Sorteado: {cidade_destino}
-    Casa Ativada no Destino: Casa {casa_id} ({nome_casa})
-    Ano: {ano}
-
-    OBJETIVO:
-    Gere o texto exato do "Oráculo" para o site. 
-    ESTRUTURA OBRIGATÓRIA (use negrito '<strong>' para títulos internos):
-    1. A Confirmação da Rota: Confirme {cidade_destino} e como quebra o padrão para alinhar com "{manifesto}".
-    2. A Lente do Ano (Casa {casa_id}): Explique detalhadamente o que vai acontecer na Vida Pessoal, Vida Amorosa e Vida Profissional deste cliente, puxando ESTRITAMENTE as informações da Casa {casa_id} na Base de Conhecimento acima. Separe essas três áreas para facilitar a leitura.
-    3. Protocolo de Ancoragem: Dê a ordem expressa sobre as 24 horas ininterruptas neste fuso horário para selar a realidade.
-    
-    REGRA: Não faça introduções conversacionais. Comece diretamente o relatório.
-    """
+    # Usa o prompt cirúrgico que o HTML enviou
+    prompt_estrategico = prompt_recebido if prompt_recebido else f"Confirme a viagem de {nome} para {cidade_destino} para ativar a Casa {casa_id}."
     
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
-        resposta = model.generate_content(prompt_estrategico)
+        
+        # Configuração Ninja: Garante resposta rápida para não dar erro de tempo (timeout)
+        resposta = model.generate_content(
+            prompt_estrategico,
+            generation_config=genai.types.GenerationConfig(
+                max_output_tokens=150,
+                temperature=0.7
+            )
+        )
         return resposta.text.replace('\n', '<br>')
     except Exception as e:
-        print(f"Erro no Motor IA: {e}")
-        return f"A malha quântica de {cidade_destino} está pronta para ancorar o seu manifesto de {ano}."
+        print(f"ERRO CRÍTICO NO GEMINI: {e}")
+        # Em caso de falha do Google, retorna vazio para a inteligência de emergência do HTML salvar a tela
+        return ""
