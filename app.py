@@ -69,7 +69,7 @@ def find_city_for_house_endpoint():
 @app.route('/find_all_cities', methods=['POST'])
 def find_all_cities_endpoint():
     """
-    Nova rota que retorna as cidades para todas as 12 casas de uma só vez e aciona a IA.
+    Nova rota que retorna as cidades para todas as 12 casas e aciona a IA com as 3 opções.
     """
     try:
         data = request.get_json()
@@ -87,13 +87,25 @@ def find_all_cities_endpoint():
         manifesto = data.get('intent', 'Expansão e Sucesso')
         alvo_id = int(data.get('alvoId', 1))
         nome_cliente = data['name']
-        prompt_mestre = data.get('prompt_mestre', '') # CAPTURA O PROMPT NINJA
+        prompt_mestre = data.get('prompt_mestre', '')
         
-        # Extrai a cidade de destino
-        cidade_destino = "Local Desconhecido"
-        if alvo_id in results and results[alvo_id].get('city'):
-            cidade_destino = results[alvo_id]['city'].get('city') or results[alvo_id]['city'].get('display_name', "Local")
+        # Extrai as 3 opções de destino para a casa alvo
+        opcoes = results.get(alvo_id, {}).get('options', {})
+        cidade_ht = opcoes.get('highticket')
+        cidade_ac = opcoes.get('acessivel')
+        cidade_na = opcoes.get('nacional')
         
+        destinos_str_list = []
+        if cidade_ht: destinos_str_list.append(f"Destino High-Ticket: {cidade_ht['display_name']}")
+        if cidade_ac: destinos_str_list.append(f"Destino Exótico/Acessível: {cidade_ac['display_name']}")
+        if cidade_na: destinos_str_list.append(f"Destino Nacional: {cidade_na['display_name']}")
+        
+        cidades_destino_str = " | ".join(destinos_str_list) if destinos_str_list else "Local Desconhecido"
+        
+        # INJEÇÃO NINJA NO PROMPT: Obriga a IA a listar as 3 opções
+        if prompt_mestre and destinos_str_list:
+            prompt_mestre += f"\n\nATENÇÃO MESTRE ASTRÓLOGO: A matemática astrológica encontrou opções idênticas no mesmo meridiano para a Casa {alvo_id}. Liste as seguintes rotas e diga ao cliente que ele pode escolher a que melhor se adequa à sua vibração e orçamento: {cidades_destino_str}."
+
         nomes_casas = {
             1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz", 
             5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto", 
@@ -101,8 +113,8 @@ def find_all_cities_endpoint():
         }
         nome_casa = nomes_casas.get(alvo_id, f"Casa {alvo_id}")
         
-        # Aciona o Gemini ENVIANDO O PROMPT DO FRONTEND
-        oraculo_ia = gerar_oraculo_gemini(prompt_mestre, nome_cliente, manifesto, alvo_id, nome_casa, cidade_destino, target_year)
+        # Aciona o Gemini
+        oraculo_ia = gerar_oraculo_gemini(prompt_mestre, nome_cliente, manifesto, alvo_id, nome_casa, cidades_destino_str, target_year)
 
         return jsonify({"results": results, "oraculo": oraculo_ia})
 
@@ -111,7 +123,7 @@ def find_all_cities_endpoint():
 
 @app.route('/health', methods=['GET'])
 def health():
-        return jsonify({"status": "ok"})
+    return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
