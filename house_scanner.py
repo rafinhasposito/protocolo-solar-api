@@ -7,10 +7,7 @@ import google.generativeai as genai
 swe.set_ephe_path('/usr/share/sweph/ephe')
 
 # ========== BANCO DE DADOS PREMIUM EXPANDIDO (400+ CIDADES) ==========
-# A ordem da lista influencia a prioridade: cidades no topo são escolhidas primeiro
-# quando múltiplas cidades caem na mesma casa astrológica.
 PREMIUM_CITIES = [
-
     # -----------------------------------------------------------------
     # 1. BRASIL – TODAS AS CAPITAIS + PRINCIPAIS CIDADES POR ESTADO
     # -----------------------------------------------------------------
@@ -80,7 +77,6 @@ PREMIUM_CITIES = [
     {"continent": "América do Sul", "country": "Bolívia", "city": "La Paz", "lat": -16.4897, "lon": -68.1193},
     {"continent": "América do Sul", "country": "Paraguai", "city": "Assunção", "lat": -25.2637, "lon": -57.5759},
     {"continent": "América do Sul", "country": "Venezuela", "city": "Caracas", "lat": 10.4806, "lon": -66.9036},
-    
     {"continent": "América Central", "country": "Panamá", "city": "Cidade do Panamá", "lat": 8.9824, "lon": -79.5199},
     {"continent": "América Central", "country": "Costa Rica", "city": "San José", "lat": 9.9281, "lon": -84.0907},
     {"continent": "América Central", "country": "Guatemala", "city": "Cidade da Guatemala", "lat": 14.6349, "lon": -90.5069},
@@ -91,7 +87,7 @@ PREMIUM_CITIES = [
     {"continent": "América Central", "country": "Bahamas", "city": "Nassau", "lat": 25.0443, "lon": -77.3504},
 
     # -----------------------------------------------------------------
-    # 2. AMÉRICA DO NORTE (EUA, Canadá, México) – principais cidades
+    # 2. AMÉRICA DO NORTE (EUA, Canadá, México)
     # -----------------------------------------------------------------
     {"continent": "América do Norte", "country": "EUA", "city": "Nova Iorque", "lat": 40.7128, "lon": -74.0060},
     {"continent": "América do Norte", "country": "EUA", "city": "Los Angeles", "lat": 34.0522, "lon": -118.2437},
@@ -137,7 +133,7 @@ PREMIUM_CITIES = [
     {"continent": "América do Norte", "country": "México", "city": "Los Cabos", "lat": 23.0908, "lon": -109.7141},
 
     # -----------------------------------------------------------------
-    # 3. EUROPA – capitais e principais cidades turísticas/econômicas
+    # 3. EUROPA
     # -----------------------------------------------------------------
     {"continent": "Europa", "country": "Portugal", "city": "Lisboa", "lat": 38.7223, "lon": -9.1393},
     {"continent": "Europa", "country": "Portugal", "city": "Porto", "lat": 41.1579, "lon": -8.6291},
@@ -228,7 +224,7 @@ PREMIUM_CITIES = [
     {"continent": "Europa", "country": "Luxemburgo", "city": "Luxemburgo", "lat": 49.8153, "lon": 6.1296},
 
     # -----------------------------------------------------------------
-    # 4. ÁFRICA – principais destinos turísticos e capitais
+    # 4. ÁFRICA
     # -----------------------------------------------------------------
     {"continent": "África", "country": "Marrocos", "city": "Marraquexe", "lat": 31.6295, "lon": -7.9811},
     {"continent": "África", "country": "Marrocos", "city": "Casablanca", "lat": 33.5731, "lon": -7.5898},
@@ -269,7 +265,7 @@ PREMIUM_CITIES = [
     {"continent": "Médio Oriente", "country": "Kuwait", "city": "Cidade do Kuwait", "lat": 29.3759, "lon": 47.9774},
 
     # -----------------------------------------------------------------
-    # 6. ÁSIA – principais destinos
+    # 6. ÁSIA
     # -----------------------------------------------------------------
     {"continent": "Ásia", "country": "Índia", "city": "Mumbai", "lat": 19.0760, "lon": 72.8777},
     {"continent": "Ásia", "country": "Índia", "city": "Nova Deli", "lat": 28.6139, "lon": 77.2090},
@@ -332,65 +328,86 @@ def calculate_house_position(jd_ut, longitude, latitude):
     sun_pos, _ = swe.calc_ut(jd_ut, swe.SUN)
     sun_lon = sun_pos[0]
     
-    # A tupla 'cusps' tem 12 elementos (0 a 11)
-    # cusps[0] = Casa 1 | cusps[11] = Casa 12
     for i in range(12):
         cusp_start = cusps[i]
-        # Se for o último índice (11), o fim da casa é o início da primeira (0)
         cusp_end = cusps[0] if i == 11 else cusps[i+1]
         
         if cusp_start < cusp_end:
             if cusp_start <= sun_lon < cusp_end:
-                return i + 1  # Retorna a Casa real (1 a 12)
+                return i + 1
         else:
-            # Atravessa o grau 360 (0º de Áries)
             if sun_lon >= cusp_start or sun_lon < cusp_end:
-                return i + 1  # Retorna a Casa real (1 a 12)
+                return i + 1
                 
-    return 1  # Fallback
+    return 1
+
+def get_city_tier(city):
+    """Classifica a cidade em um dos 3 Tiers estratégicos."""
+    if city['country'] == 'Brasil':
+        return 'nacional'
+    high_ticket = [
+        'EUA', 'Canadá', 'França', 'Itália', 'Reino Unido', 'Espanha', 
+        'Suíça', 'Alemanha', 'Emirados Árabes', 'Japão', 'Austrália', 
+        'Nova Zelândia', 'Mónaco', 'Vaticano', 'Holanda', 'Bélgica', 
+        'Islândia', 'Dinamarca', 'Suécia', 'Noruega', 'Finlândia', 
+        'Áustria', 'Luxemburgo', 'Singapura'
+    ]
+    if city['country'] in high_ticket:
+        return 'highticket'
+    return 'acessivel'
 
 def scan_premium_houses(jd_return):
     """
-    Algoritmo reforçado: garante que TODAS as 12 casas recebam uma cidade.
+    Rastreamento Triplo: Busca 3 opções de cidades (Tiers) para cada casa.
     """
-    results = {i: None for i in range(1, 13)}
+    results = {i: {
+        "city": None, "lat": None, "lon": None, "longitude": None,
+        "options": {"highticket": None, "acessivel": None, "nacional": None}
+    } for i in range(1, 13)}
+    
     used_countries = set()
 
-    # Passo 1: Atribuir cidades com países únicos
+    # Passagem 1: Preenche os Tiers com países únicos
     for city in PREMIUM_CITIES:
         house = calculate_house_position(jd_return, city["lon"], city["lat"])
-        if results[house] is None and city["country"] not in used_countries:
-            results[house] = {
-                "city": {
-                    "city": city["city"],
-                    "country": city["country"],
-                    "continent": city["continent"],
-                    "display_name": f"{city['city']}, {city['country']}"
-                },
-                "longitude": city["lon"],
+        tier = get_city_tier(city)
+        
+        if results[house]["options"][tier] is None and city["country"] not in used_countries:
+            city_data = {
+                "city": city["city"],
+                "country": city["country"],
+                "continent": city["continent"],
+                "display_name": f"{city['city']}, {city['country']}",
                 "lat": city["lat"],
                 "lon": city["lon"]
             }
+            results[house]["options"][tier] = city_data
             used_countries.add(city["country"])
-
-    # Passo 2: Fallback robusto – preenche as casas vazias com a primeira cidade disponível para aquela casa
+            
+    # Passagem 2: Define a "Cidade Principal" para compatibilidade com o HTML 4.0/5.0 atual
+    # Prioridade de exibição no mapa: High-Ticket > Acessível > Nacional
     for i in range(1, 13):
-        if results[i] is None:
+        opts = results[i]["options"]
+        main_city = opts["highticket"] or opts["acessivel"] or opts["nacional"]
+        
+        # Fallback de segurança: se nenhuma cidade das 400 bateu na casa, força uma busca relaxando regras
+        if not main_city:
             for city in PREMIUM_CITIES:
                 house = calculate_house_position(jd_return, city["lon"], city["lat"])
                 if house == i:
-                    results[i] = {
-                        "city": {
-                            "city": city["city"],
-                            "country": city["country"],
-                            "continent": city["continent"],
-                            "display_name": f"{city['city']}, {city['country']}"
-                        },
-                        "longitude": city["lon"],
-                        "lat": city["lat"],
-                        "lon": city["lon"]
+                    main_city = {
+                        "city": city["city"], "country": city["country"],
+                        "continent": city["continent"], "display_name": f"{city['city']}, {city['country']}",
+                        "lat": city["lat"], "lon": city["lon"]
                     }
+                    opts[get_city_tier(city)] = main_city
                     break
+        
+        if main_city:
+            results[i]["city"] = main_city
+            results[i]["lat"] = main_city["lat"]
+            results[i]["lon"] = main_city["lon"]
+            results[i]["longitude"] = main_city["lon"]
 
     return results
 
@@ -409,23 +426,20 @@ def find_all_cities_for_year(natal_data, target_year):
 # MOTOR DE INTELIGÊNCIA ARTIFICIAL (GEMINI) - MODO HIGH-TICKET
 # =====================================================================
 
-# O sistema puxa a chave trancada no cofre do Render automaticamente
 CHAVE_API = os.environ.get("GEMINI_API_KEY")
 if CHAVE_API:
     genai.configure(api_key=CHAVE_API)
 
-def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, cidade_destino, ano):
-    # Se não tiver chave da API, retorna vazio para o HTML assumir a inteligência
+def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, cidades_destino_str, ano):
     if not CHAVE_API:
         return ""
 
-    # Usa o prompt cirúrgico que o HTML enviou
-    prompt_estrategico = prompt_recebido if prompt_recebido else f"Confirme a viagem de {nome} para {cidade_destino} para ativar a Casa {casa_id}."
+    prompt_estrategico = prompt_recebido if prompt_recebido else f"Confirme a viagem de {nome} para ativar a Casa {casa_id}."
     
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         
-        # Configuração Ninja: Garante resposta rápida para não dar erro de tempo (timeout)
+        # Token baixo (150) para extrema velocidade de resposta (Evita Timeout no Render)
         resposta = model.generate_content(
             prompt_estrategico,
             generation_config=genai.types.GenerationConfig(
@@ -436,5 +450,4 @@ def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, c
         return resposta.text.replace('\n', '<br>')
     except Exception as e:
         print(f"ERRO CRÍTICO NO GEMINI: {e}")
-        # Em caso de falha do Google, retorna vazio para a inteligência de emergência do HTML salvar a tela
         return ""
