@@ -87,6 +87,7 @@ def find_all_cities_endpoint():
         manifesto = data.get('intent', 'Expansão e Sucesso')
         alvo_id = int(data.get('alvoId', 1))
         nome_cliente = data['name']
+        prompt_mestre = data.get('prompt_mestre', '') # CAPTURA O PROMPT NINJA
         
         # Extrai a cidade de destino
         cidade_destino = "Local Desconhecido"
@@ -100,8 +101,8 @@ def find_all_cities_endpoint():
         }
         nome_casa = nomes_casas.get(alvo_id, f"Casa {alvo_id}")
         
-        # Aciona o Gemini
-        oraculo_ia = gerar_oraculo_gemini(nome_cliente, manifesto, alvo_id, nome_casa, cidade_destino, target_year)
+        # Aciona o Gemini ENVIANDO O PROMPT DO FRONTEND
+        oraculo_ia = gerar_oraculo_gemini(prompt_mestre, nome_cliente, manifesto, alvo_id, nome_casa, cidade_destino, target_year)
 
         return jsonify({"results": results, "oraculo": oraculo_ia})
 
@@ -110,7 +111,7 @@ def find_all_cities_endpoint():
 
 @app.route('/health', methods=['GET'])
 def health():
-    return jsonify({"status": "ok"})
+        return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
