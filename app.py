@@ -5,6 +5,7 @@ from datetime import datetime
 import requests
 from house_scanner import (
     calculate_solar_return,
+    calculate_house_position,
     find_all_cities_for_year,
     gerar_oraculo_gemini
 )
@@ -117,6 +118,49 @@ def find_all_cities_endpoint():
         oraculo_ia = gerar_oraculo_gemini(prompt_mestre, nome_cliente, manifesto, alvo_id, nome_casa, cidades_destino_str, target_year)
 
         return jsonify({"results": results, "oraculo": oraculo_ia})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/audit_past', methods=['POST'])
+def audit_past_endpoint():
+    """Rota exclusiva para a Máquina do Tempo (Auditar Passado)"""
+    try:
+        data = request.get_json()
+        cidade_passado = data.get('past_city')
+        target_year = int(data['target_year'])
+
+        lat_passado, lon_passado = geocode_place(cidade_passado)
+        if lat_passado is None:
+            return jsonify({"error": "Não foi possível localizar as coordenadas da cidade informada."}), 400
+
+        birth_date = datetime.strptime(data['dob'] + ' ' + data['time'], '%d/%m/%Y %H:%M')
+        jd_natal = swe.julday(birth_date.year, birth_date.month, birth_date.day,
+                              birth_date.hour + birth_date.minute/60.0)
+        
+        jd_return = calculate_solar_return(jd_natal, target_year)
+        
+        # Uso direto da função previamente importada no topo do arquivo
+        house_number = calculate_house_position(jd_return, float(lon_passado), float(lat_passado))
+
+        nomes_casas = {
+            1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz", 
+            5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto", 
+            9: "A Expansão", 10: "O Governante", 11: "O Visionário", 12: "O Silêncio"
+        }
+        nome_casa = nomes_casas.get(house_number, f"Casa {house_number}")
+
+        prompt_mestre = f"Aja como Mestre Astrólogo. O cliente {data['name']} passou o aniversário de {target_year} em {cidade_passado}. A matemática revela que o Sol Anual caiu na Casa {house_number} ({nome_casa}). Escreva um parágrafo denso e revelador (max 100 palavras) confirmando que este arquétipo governou aquele ano, explicando os desafios e vitórias que ele viveu, provando a precisão da astrologia de relocalização."
+        
+        oraculo_ia = gerar_oraculo_gemini(prompt_mestre, data['name'], "Auditoria", house_number, nome_casa, cidade_passado, target_year)
+
+        return jsonify({
+            "house": house_number,
+            "house_name": nome_casa,
+            "oraculo": oraculo_ia,
+            "lat": lat_passado,
+            "lon": lon_passado
+        })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
