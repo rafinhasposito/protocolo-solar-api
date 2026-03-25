@@ -150,7 +150,13 @@ def audit_past_endpoint():
         }
         nome_casa = nomes_casas.get(house_number, f"Casa {house_number}")
 
-        prompt_mestre = f"Aja como Mestre Astrólogo. O cliente {data['name']} passou o aniversário de {target_year} em {cidade_passado}. A matemática revela que o Sol Anual caiu na Casa {house_number} ({nome_casa}). Escreva um parágrafo denso e revelador (max 100 palavras) confirmando que este arquétipo governou aquele ano, explicando os desafios e vitórias que ele viveu, provando a precisão da astrologia de relocalização."
+        prompt_mestre = f"""Aja como Mestre Astrólogo Quântico, focado na expansão de consciência. 
+O cliente {data['name']} passou o aniversário de {target_year} em {cidade_passado}. 
+A matemática da relocalização ancorou o Sol dele na Casa {house_number} ({nome_casa}). 
+Escreva uma mensagem direta, poética e acolhedora de NO MÁXIMO 100 palavras. 
+NÃO use a palavra "sistema" e NÃO repita o país inteiro, use apenas a cidade. 
+Comece a frase de uma destas formas: "Quando você decidiu firmar seus passos em [Cidade]...", "Ao ancorar a sua energia em [Cidade]..." ou "O universo calibrou a sua frequência quando você esteve em [Cidade]...".
+Explique como esse arquétipo moldou o aprendizado e os eventos materiais dele naquele ano."""
         
         oraculo_ia = gerar_oraculo_gemini(prompt_mestre, data['name'], "Auditoria", house_number, nome_casa, cidade_passado, target_year)
 
