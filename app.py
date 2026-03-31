@@ -2,34 +2,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import swisseph as swe
 from datetime import datetime
-import requests
 from house_scanner import (
     calculate_solar_return,
     get_house_superposition,
     find_all_cities_for_year,
-    gerar_oraculo_gemini
+    gerar_oraculo_gemini,
+    get_natal_coordinates,
+    parse_birth_datetime # Importado para manter o tratamento robusto de datas
 )
 
 app = Flask(__name__)
 CORS(app)
-
-def geocode_place(place_name):
-    url = "https://nominatim.openstreetmap.org/search"
-    params = {
-        "q": place_name,
-        "format": "json",
-        "limit": 1
-    }
-    headers = {"User-Agent": "ProtocoloSolar/1.0"}
-    try:
-        response = requests.get(url, params=params, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            if data:
-                return float(data[0]['lat']), float(data[0]['lon'])
-    except Exception as e:
-        print(f"Erro geocoding: {e}")
-    return None, None
 
 @app.route('/calculate_chart', methods=['POST'])
 def calculate_chart():
@@ -45,14 +28,21 @@ def find_city_for_house_endpoint():
                 return jsonify({"error": f"Campo obrigatório: {field}"}), 400
 
         target_year = int(data['target_year'])
+        if not (1900 <= target_year <= 2100):
+            return jsonify({"error": "Ano astrológico fora do limite seguro (1900-2100)."}), 400
+
         target_house = int(data['target_house'])
-        todas_as_casas = find_all_cities_for_year(data, target_year)
+        manifesto = data.get('intent', '')
+        
+        todas_as_casas = find_all_cities_for_year(data, target_year, manifesto)
         resultado = todas_as_casas.get(target_house)
 
-        if resultado is None:
-            return jsonify({"error": "Nenhuma cidade encontrada"}), 404
+        if resultado is None or resultado.get("city") is None:
+            return jsonify({"error": "Nenhuma cidade encontrada para esta casa matemática."}), 404
 
         return jsonify(resultado)
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -66,9 +56,13 @@ def find_all_cities_endpoint():
                 return jsonify({"error": f"Campo obrigatório: {field}"}), 400
 
         target_year = int(data['target_year'])
-        results = find_all_cities_for_year(data, target_year)
+        if not (1900 <= target_year <= 2100):
+            return jsonify({"error": "Ano astrológico fora do limite seguro (1900-2100)."}), 400
 
-        manifesto = data.get('intent', 'Expansão e Sucesso')
+        manifesto = data.get('intent', '')
+        
+        results = find_all_cities_for_year(data, target_year, manifesto)
+
         alvo_id = int(data.get('alvoId', 1))
         nome_cliente = data['name']
         prompt_mestre = data.get('prompt_mestre', '')
@@ -79,15 +73,16 @@ def find_all_cities_endpoint():
         cidade_na = opcoes.get('nacional')
         
         destinos_str_list = []
-        if cidade_ht: destinos_str_list.append(f"Destino High-Ticket: {cidade_ht['display_name']}")
-        if cidade_ac: destinos_str_list.append(f"Destino Exótico/Acessível: {cidade_ac['display_name']}")
-        if cidade_na: destinos_str_list.append(f"Destino Nacional: {cidade_na['display_name']}")
+        if cidade_ht: destinos_str_list.append(f"{cidade_ht['display_name']}")
+        if cidade_ac: destinos_str_list.append(f"{cidade_ac['display_name']}")
+        if cidade_na: destinos_str_list.append(f"{cidade_na['display_name']}")
         
-        cidades_destino_str = " | ".join(destinos_str_list) if destinos_str_list else "Local Desconhecido"
+        # Bloqueio de Oráculo Vazio: Devolve 404 antes de enviar para o Gemini
+        if not destinos_str_list:
+            return jsonify({"error": "Nenhuma cidade encontrada para esta casa matemática."}), 404
+            
+        cidades_destino_str = destinos_str_list[0]
         
-        if prompt_mestre and destinos_str_list:
-            prompt_mestre += f"\n\nATENÇÃO MESTRE ASTRÓLOGO: A matemática astrológica encontrou opções idênticas no mesmo meridiano para a Casa {alvo_id}. Liste as seguintes rotas e diga ao cliente que ele pode escolher a que melhor se adequa à sua vibração e orçamento: {cidades_destino_str}."
-
         nomes_casas = {
             1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz", 
             5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto", 
@@ -99,6 +94,8 @@ def find_all_cities_endpoint():
 
         return jsonify({"results": results, "oraculo": oraculo_ia})
 
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -109,29 +106,34 @@ def audit_past_endpoint():
         cidade_passado = data.get('past_city') or data.get('city')
         target_year = int(data['target_year'])
 
+        if not (1900 <= target_year <= 2100):
+            return jsonify({"error": "Ano astrológico fora do limite seguro (1900-2100)."}), 400
+
         past_lat = data.get('past_lat')
         past_lon = data.get('past_lon')
 
         if past_lat is None or past_lon is None:
             if cidade_passado:
-                past_lat, past_lon = geocode_place(cidade_passado)
+                past_lat, past_lon = get_natal_coordinates(cidade_passado)
             
         if past_lat is None or past_lon is None:
-            return jsonify({"error": "Falha na Matrix: Não foi possível localizar as coordenadas. Selecione a cidade novamente na lista."}), 400
+            return jsonify({"error": "Falha na Matrix: Não foi possível localizar as coordenadas da cidade auditada. Selecione a cidade novamente na lista."}), 400
 
-        birth_date = datetime.strptime(data['dob'] + ' ' + data['time'], '%d/%m/%Y %H:%M')
+        # Parsing unificado flexível (protege contra formatos de hora/data incorretos)
+        birth_date = parse_birth_datetime(data['dob'], data['time'])
+        
         jd_natal = swe.julday(birth_date.year, birth_date.month, birth_date.day,
                               birth_date.hour + birth_date.minute/60.0)
         
-        jd_return = calculate_solar_return(jd_natal, target_year)
+        jd_return = calculate_solar_return(jd_natal, target_year, birth_date.month, birth_date.day)
         
         natal_lat = data.get('natal_lat')
         natal_lon = data.get('natal_lon')
         if natal_lat is None or natal_lon is None:
-            natal_lat, natal_lon = geocode_place(data['place_of_birth'])
+            natal_lat, natal_lon = get_natal_coordinates(data['place_of_birth'])
             
         if natal_lat is None or natal_lon is None:
-            return jsonify({"error": "Falha ao localizar coordenadas de nascimento."}), 400
+            return jsonify({"error": "Falha ao localizar coordenadas de nascimento. O cálculo exige exatidão extrema."}), 400
 
         natal_cusps, _ = swe.houses_ex(jd_natal, float(natal_lat), float(natal_lon), b'P')
         _, ascmc = swe.houses_ex(jd_return, float(past_lat), float(past_lon), b'P')
@@ -163,6 +165,8 @@ Explique como esse arquétipo moldou o aprendizado material dele naquele ano."""
             "lon": float(past_lon)
         })
 
+    except ValueError as ve:
+        return jsonify({"error": str(ve)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -171,4 +175,5 @@ def health():
     return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    # Modo de produção seguro (debug=False)
+    app.run(host='0.0.0.0', debug=False)
