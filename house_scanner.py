@@ -2,11 +2,12 @@ import swisseph as swe
 from datetime import datetime
 import os
 import google.generativeai as genai
+from geopy.geocoders import Nominatim
 
 # ========== CONFIGURAÇÃO DA SWISS EPHEMERIS ==========
 swe.set_ephe_path('/usr/share/sweph/ephe')
 
-# ========== BANCO DE DADOS PREMIUM EXPANDIDO (400+ CIDADES) ==========
+# ========== BANCO DE DADOS PREMIUM EXPANDIDO ==========
 PREMIUM_CITIES = [
     # -----------------------------------------------------------------
     # 1. BRASIL – TODAS AS CAPITAIS + PRINCIPAIS CIDADES POR ESTADO
@@ -322,27 +323,30 @@ def calculate_solar_return(jd_natal, target_year):
     jd_start = swe.julday(target_year, 1, 1, 12.0)
     return swe.solcross_ut(sun_longitude, jd_start)
 
-def calculate_house_position(jd_ut, longitude, latitude):
-    """Lógica CORRIGIDA para matriz Python (Índices de 0 a 11)."""
-    cusps, ascmc = swe.houses_ex(jd_ut, latitude, longitude, b'P')
-    sun_pos, _ = swe.calc_ut(jd_ut, swe.SUN)
-    sun_lon = sun_pos[0]
-    
+def get_natal_coordinates(city_name):
+    geolocator = Nominatim(user_agent="ProtocoloSolarAPI")
+    try:
+        location = geolocator.geocode(city_name)
+        if location:
+            return location.latitude, location.longitude
+    except Exception:
+        pass
+    return 0.0, 0.0
+
+def get_house_superposition(sr_ascendant, natal_cusps):
     for i in range(12):
-        cusp_start = cusps[i]
-        cusp_end = cusps[0] if i == 11 else cusps[i+1]
+        cusp_start = natal_cusps[i]
+        cusp_end = natal_cusps[0] if i == 11 else natal_cusps[i+1]
         
         if cusp_start < cusp_end:
-            if cusp_start <= sun_lon < cusp_end:
+            if cusp_start <= sr_ascendant < cusp_end:
                 return i + 1
         else:
-            if sun_lon >= cusp_start or sun_lon < cusp_end:
+            if sr_ascendant >= cusp_start or sr_ascendant < cusp_end:
                 return i + 1
-                
     return 1
 
 def get_city_tier(city):
-    """Classifica a cidade em um dos 3 Tiers estratégicos."""
     if city['country'] == 'Brasil':
         return 'nacional'
     high_ticket = [
@@ -356,10 +360,7 @@ def get_city_tier(city):
         return 'highticket'
     return 'acessivel'
 
-def scan_premium_houses(jd_return):
-    """
-    Rastreamento Triplo: Busca 3 opções de cidades (Tiers) para cada casa.
-    """
+def scan_premium_houses(jd_return, natal_cusps):
     results = {i: {
         "city": None, "lat": None, "lon": None, "longitude": None,
         "options": {"highticket": None, "acessivel": None, "nacional": None}
@@ -367,9 +368,10 @@ def scan_premium_houses(jd_return):
     
     used_countries = set()
 
-    # Passagem 1: Preenche os Tiers com países únicos
     for city in PREMIUM_CITIES:
-        house = calculate_house_position(jd_return, city["lon"], city["lat"])
+        _, ascmc = swe.houses_ex(jd_return, city["lat"], city["lon"], b'P')
+        sr_ascendant = ascmc[0]
+        house = get_house_superposition(sr_ascendant, natal_cusps)
         tier = get_city_tier(city)
         
         if results[house]["options"][tier] is None and city["country"] not in used_countries:
@@ -384,16 +386,15 @@ def scan_premium_houses(jd_return):
             results[house]["options"][tier] = city_data
             used_countries.add(city["country"])
             
-    # Passagem 2: Define a "Cidade Principal" para compatibilidade com o HTML 4.0/5.0 atual
-    # Prioridade de exibição no mapa: High-Ticket > Acessível > Nacional
     for i in range(1, 13):
         opts = results[i]["options"]
         main_city = opts["highticket"] or opts["acessivel"] or opts["nacional"]
         
-        # Fallback de segurança: se nenhuma cidade das 400 bateu na casa, força uma busca relaxando regras
         if not main_city:
             for city in PREMIUM_CITIES:
-                house = calculate_house_position(jd_return, city["lon"], city["lat"])
+                _, ascmc = swe.houses_ex(jd_return, city["lat"], city["lon"], b'P')
+                sr_ascendant = ascmc[0]
+                house = get_house_superposition(sr_ascendant, natal_cusps)
                 if house == i:
                     main_city = {
                         "city": city["city"], "country": city["country"],
@@ -417,13 +418,21 @@ def find_all_cities_for_year(natal_data, target_year):
         jd_natal = swe.julday(birth_date.year, birth_date.month, birth_date.day,
                               birth_date.hour + birth_date.minute/60.0)
         jd_return = calculate_solar_return(jd_natal, target_year)
-        return scan_premium_houses(jd_return)
+        
+        natal_lat = natal_data.get('natal_lat')
+        natal_lon = natal_data.get('natal_lon')
+        if natal_lat is None or natal_lon is None:
+            natal_lat, natal_lon = get_natal_coordinates(natal_data['place_of_birth'])
+
+        natal_cusps, _ = swe.houses_ex(jd_natal, float(natal_lat), float(natal_lon), b'P')
+        
+        return scan_premium_houses(jd_return, natal_cusps)
     except Exception as e:
-        print(f"Erro: {e}")
+        print(f"Erro no calculo matemático: {e}")
         raise e
 
 # =====================================================================
-# MOTOR DE INTELIGÊNCIA ARTIFICIAL (GEMINI) - MODO HIGH-TICKET
+# MOTOR DE INTELIGÊNCIA ARTIFICIAL (GEMINI)
 # =====================================================================
 
 CHAVE_API = os.environ.get("GEMINI_API_KEY")
@@ -439,11 +448,11 @@ def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, c
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         
-        # Token baixo (150) para extrema velocidade de resposta (Evita Timeout no Render)
+        # A limitação máxima de tokens foi removida para garantir que o "Manual"
+        # de leitura astrológica retorne integralmente sem ser cortado no meio.
         resposta = model.generate_content(
             prompt_estrategico,
             generation_config=genai.types.GenerationConfig(
-                max_output_tokens=150,
                 temperature=0.7
             )
         )
