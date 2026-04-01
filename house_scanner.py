@@ -352,8 +352,6 @@ def parse_birth_datetime(dob_str, time_str):
             raise ValueError("Formato de data/hora inválido. Certifique-se de preencher os dados corretamente.")
 
 # ========== GEOCODING BLINDADO (FALLBACK) ==========
-# NOTA: Com a nova atualização do HTML, o frontend já envia lat e lon direto.
-# Esta função agora existe apenas como um fallback absoluto caso algo falhe na comunicação.
 def get_natal_coordinates(city_name):
     if not city_name or city_name.strip() == "":
         raise ValueError("O nome da cidade não pode estar vazio.")
@@ -396,12 +394,8 @@ def local_to_utc(lat, lon, local_datetime):
     try:
         local_dt = tz.localize(local_datetime, is_dst=None)
     except pytz.exceptions.AmbiguousTimeError:
-        # A hora repete-se na saída do horário de verão. Assume inverno.
         local_dt = tz.localize(local_datetime, is_dst=False)
     except pytz.exceptions.NonExistentTimeError:
-        # BUG DO HORÁRIO FANTASMA CORRIGIDO: 
-        # A hora foi "saltada" pela entrada do horário de verão e "não existe".
-        # Solução: Adicionamos 1 hora e forçamos a leitura como DST.
         local_dt = tz.localize(local_datetime + timedelta(hours=1), is_dst=True)
     return local_dt.astimezone(pytz.UTC)
 
@@ -413,7 +407,6 @@ def calculate_solar_return(jd_natal, target_year, birth_month, birth_day):
     try:
         start_date = datetime(target_year, birth_month, birth_day)
     except ValueError:
-        # Blindagem Crítica: 29 de fev em ano não bissexto
         start_date = datetime(target_year, 3, 1)
         
     start_date -= timedelta(days=3)
@@ -449,21 +442,9 @@ def get_city_tier(city):
     return 'acessivel'
 
 def score_city_for_house(city, house_id, user_intent):
-    city_tags = city.get("tags", [])
-    city_ranking_score = city.get("score", 0)
-
-    archetype_tags = HOUSE_ARCHETYPES.get(house_id, [])
-    tag_score = 2 * len(set(city_tags) & set(archetype_tags))
-    
-    intent_score = 0
-    if user_intent:
-        intent_words = set(user_intent.lower().split())
-        for word in intent_words:
-            if len(word) > 3 and any(word in tag.lower() for tag in city_tags):
-                intent_score += 1
-                
-    # Soma final: tag + intenção + ranking de popularidade
-    return tag_score + intent_score + city_ranking_score
+    # Apenas o score de fama (city_ranking_score) define a pontuação.
+    # Tags e intenção são ignorados para priorizar as cidades mais famosas.
+    return city.get("score", 0)
 
 def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
     results = {i: {
@@ -478,7 +459,6 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
         sr_ascendant = ascmc[0]
         house = get_house_superposition(sr_ascendant, natal_cusps)
         
-        # Calcula o score total usando a cidade inteira
         total_score = score_city_for_house(city, house, user_intent)
         
         city_data = {
@@ -508,7 +488,6 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
     return results
 
 def find_all_cities_for_year(natal_data, target_year, user_intent=""):
-    # TRAVA DO VIAJANTE DO TEMPO CORRIGIDA
     if not (1900 <= int(target_year) <= 2100):
         raise ValueError("Ano astrológico fora do limite seguro (1900-2100). A operação foi abortada para proteger os motores astronómicos.")
 
