@@ -3,12 +3,12 @@ from flask_cors import CORS
 import swisseph as swe
 from datetime import datetime
 from house_scanner import (
-    calculate_solar_return,
-    get_house_superposition,
     find_all_cities_for_year,
+    get_house_for_city,
+    get_canonical_coordinates,
     gerar_oraculo_gemini,
-    get_natal_coordinates,
-    parse_birth_datetime # Importado para manter o tratamento robusto de datas
+    compute_solar_return_data,
+    parse_birth_datetime
 )
 
 app = Flask(__name__)
@@ -29,7 +29,7 @@ def find_city_for_house_endpoint():
 
         target_year = int(data['target_year'])
         if not (1900 <= target_year <= 2100):
-            return jsonify({"error": "Ano astrológico fora do limite seguro (1900-2100)."}), 400
+            return jsonify({"error": "Ano fora do limite seguro (1900-2100)."}), 400
 
         target_house = int(data['target_house'])
         manifesto = data.get('intent', '')
@@ -38,7 +38,7 @@ def find_city_for_house_endpoint():
         resultado = todas_as_casas.get(target_house)
 
         if resultado is None or resultado.get("city") is None:
-            return jsonify({"error": "Nenhuma cidade encontrada para esta casa matemática."}), 404
+            return jsonify({"error": "Nenhuma cidade encontrada para esta casa."}), 404
 
         return jsonify(resultado)
     except ValueError as ve:
@@ -57,10 +57,9 @@ def find_all_cities_endpoint():
 
         target_year = int(data['target_year'])
         if not (1900 <= target_year <= 2100):
-            return jsonify({"error": "Ano astrológico fora do limite seguro (1900-2100)."}), 400
+            return jsonify({"error": "Ano fora do limite seguro (1900-2100)."}), 400
 
         manifesto = data.get('intent', '')
-        
         results = find_all_cities_for_year(data, target_year, manifesto)
 
         alvo_id = int(data.get('alvoId', 1))
@@ -73,19 +72,21 @@ def find_all_cities_endpoint():
         cidade_na = opcoes.get('nacional')
         
         destinos_str_list = []
-        if cidade_ht: destinos_str_list.append(f"{cidade_ht['display_name']}")
-        if cidade_ac: destinos_str_list.append(f"{cidade_ac['display_name']}")
-        if cidade_na: destinos_str_list.append(f"{cidade_na['display_name']}")
+        if cidade_ht:
+            destinos_str_list.append(f"{cidade_ht['display_name']}")
+        if cidade_ac:
+            destinos_str_list.append(f"{cidade_ac['display_name']}")
+        if cidade_na:
+            destinos_str_list.append(f"{cidade_na['display_name']}")
         
-        # Bloqueio de Oráculo Vazio: Devolve 404 antes de enviar para o Gemini
         if not destinos_str_list:
-            return jsonify({"error": "Nenhuma cidade encontrada para esta casa matemática."}), 404
+            return jsonify({"error": "Nenhuma cidade encontrada para esta casa."}), 404
             
         cidades_destino_str = destinos_str_list[0]
         
         nomes_casas = {
-            1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz", 
-            5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto", 
+            1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz",
+            5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto",
             9: "A Expansão", 10: "O Governante", 11: "O Visionário", 12: "O Silêncio"
         }
         nome_casa = nomes_casas.get(alvo_id, f"Casa {alvo_id}")
@@ -107,43 +108,27 @@ def audit_past_endpoint():
         target_year = int(data['target_year'])
 
         if not (1900 <= target_year <= 2100):
-            return jsonify({"error": "Ano astrológico fora do limite seguro (1900-2100)."}), 400
+            return jsonify({"error": "Ano fora do limite seguro (1900-2100)."}), 400
 
         past_lat = data.get('past_lat')
         past_lon = data.get('past_lon')
 
+        # Se o frontend enviou lat/lon, usa-os. Senão, busca coordenadas canônicas.
         if past_lat is None or past_lon is None:
             if cidade_passado:
-                past_lat, past_lon = get_natal_coordinates(cidade_passado)
+                # Tenta extrair país também se disponível
+                country = data.get('past_country')
+                past_lat, past_lon = get_canonical_coordinates(cidade_passado, country)
             
         if past_lat is None or past_lon is None:
             return jsonify({"error": "Falha na Matrix: Não foi possível localizar as coordenadas da cidade auditada. Selecione a cidade novamente na lista."}), 400
 
-        # Parsing unificado flexível (protege contra formatos de hora/data incorretos)
-        birth_date = parse_birth_datetime(data['dob'], data['time'])
-        
-        jd_natal = swe.julday(birth_date.year, birth_date.month, birth_date.day,
-                              birth_date.hour + birth_date.minute/60.0)
-        
-        jd_return = calculate_solar_return(jd_natal, target_year, birth_date.month, birth_date.day)
-        
-        natal_lat = data.get('natal_lat')
-        natal_lon = data.get('natal_lon')
-        if natal_lat is None or natal_lon is None:
-            natal_lat, natal_lon = get_natal_coordinates(data['place_of_birth'])
-            
-        if natal_lat is None or natal_lon is None:
-            return jsonify({"error": "Falha ao localizar coordenadas de nascimento. O cálculo exige exatidão extrema."}), 400
-
-        natal_cusps, _ = swe.houses_ex(jd_natal, float(natal_lat), float(natal_lon), b'P')
-        _, ascmc = swe.houses_ex(jd_return, float(past_lat), float(past_lon), b'P')
-        sr_ascendant = ascmc[0]
-        
-        house_number = get_house_superposition(sr_ascendant, natal_cusps)
+        # Usa a mesma função que o scan principal para calcular a casa
+        house_number = get_house_for_city(past_lat, past_lon, data, target_year)
 
         nomes_casas = {
-            1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz", 
-            5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto", 
+            1: "O Herói", 2: "A Prosperidade", 3: "A Voz", 4: "A Raiz",
+            5: "O Criador", 6: "A Ordem", 7: "O Elo", 8: "O Salto",
             9: "A Expansão", 10: "O Governante", 11: "O Visionário", 12: "O Silêncio"
         }
         nome_casa = nomes_casas.get(house_number, f"Casa {house_number}")
@@ -175,5 +160,4 @@ def health():
     return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
-    # Modo de produção seguro (debug=False)
     app.run(host='0.0.0.0', debug=False)
