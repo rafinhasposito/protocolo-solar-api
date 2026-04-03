@@ -1,15 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import swisseph as swe
-from datetime import datetime
-
 from house_scanner import (
     find_all_cities_for_year,
     get_house_for_city,
     get_canonical_coordinates,
     gerar_oraculo_gemini,
-    compute_solar_return_data,
-    parse_birth_datetime
 )
 
 app = Flask(__name__)
@@ -21,14 +16,14 @@ CORS(app)
 # =============================
 def normalize_city_output(city_data):
     """
-    Garante que TODA cidade tenha um padrão consistente
+    Garante que UMA cidade tenha padrão consistente.
+    city_data deve ser um dicionário de uma cidade.
     """
     if not city_data:
         return None
 
     city = city_data.get("city")
     country = city_data.get("country")
-
     display_name = city_data.get("display_name")
 
     if not display_name:
@@ -78,7 +73,9 @@ def find_city_for_house_endpoint():
         if not resultado or not resultado.get("city"):
             return jsonify({"error": "Nenhuma cidade encontrada para esta casa."}), 404
 
-        resultado_normalizado = normalize_city_output(resultado)
+        # 🔥 CORREÇÃO 4: resultado é a casa, pegar a cidade principal
+        cidade_principal = resultado.get("city")
+        resultado_normalizado = normalize_city_output(cidade_principal)
 
         return jsonify(resultado_normalizado)
 
@@ -105,13 +102,13 @@ def find_all_cities_endpoint():
         manifesto = data.get('intent', '')
         results = find_all_cities_for_year(data, target_year, manifesto)
 
-        # 🔥 NORMALIZA TODAS AS OPÇÕES
+        # 🔥 CORREÇÃO 1: normalizar cada cidade dentro das listas
         for house_id, house_data in results.items():
             options = house_data.get("options", {})
 
             for key in ["highticket", "acessivel", "nacional"]:
-                if key in options:
-                    options[key] = normalize_city_output(options[key])
+                if key in options and isinstance(options[key], list):
+                    options[key] = [normalize_city_output(c) for c in options[key] if c]
 
         alvo_id = int(data.get('alvoId', 1))
         nome_cliente = data['name']
@@ -119,11 +116,18 @@ def find_all_cities_endpoint():
 
         opcoes = results.get(alvo_id, {}).get('options', {})
 
-        cidade_ht = opcoes.get('highticket')
-        cidade_ac = opcoes.get('acessivel')
-        cidade_na = opcoes.get('nacional')
+        # 🔥 CORREÇÃO 2: pegar o primeiro elemento de cada lista (se existir)
+        cidade_ht = opcoes.get('highticket', [])
+        cidade_ac = opcoes.get('acessivel', [])
+        cidade_na = opcoes.get('nacional', [])
 
-        destinos = [c for c in [cidade_ht, cidade_ac, cidade_na] if c]
+        destinos = []
+        if cidade_ht:
+            destinos.append(cidade_ht[0])
+        if cidade_ac:
+            destinos.append(cidade_ac[0])
+        if cidade_na:
+            destinos.append(cidade_na[0])
 
         if not destinos:
             return jsonify({"error": "Nenhuma cidade encontrada para esta casa."}), 404
@@ -176,7 +180,10 @@ def audit_past_endpoint():
         if past_lat is None or past_lon is None:
             if cidade_passado:
                 country = data.get('past_country')
-                past_lat, past_lon = get_canonical_coordinates(cidade_passado, country)
+                # 🔥 CORREÇÃO 3: get_canonical_coordinates retorna dict
+                coords = get_canonical_coordinates(cidade_passado, country)
+                past_lat = coords["lat"]
+                past_lon = coords["lon"]
 
         if past_lat is None or past_lon is None:
             return jsonify({"error": "Não foi possível localizar a cidade."}), 400
