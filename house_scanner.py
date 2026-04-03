@@ -6,6 +6,7 @@ import google.generativeai as genai
 import pytz
 from timezonefinder import TimezoneFinder
 import logging
+from collections import Counter
 
 # ========== CONFIGURAÇÃO GERAL ==========
 logging.basicConfig(level=logging.INFO)
@@ -226,46 +227,70 @@ PREMIUM_CITIES = [
     {"continent": "Oceania", "country": "Havaí", "city": "Honolulu", "lat": 21.3069, "lon": -157.8583, "tags": ["praia", "surf", "natureza", "espírito aloha", "férias", "lazer"], "score": 7},
 ]
 
-# ========== FUNÇÕES AUXILIARES ==========
-def parse_birth_datetime(dob_str, time_str):
-    time_str = time_str.strip()
-    if ':' not in time_str:
-        if len(time_str) <= 2:
-            time_str = f"{time_str.zfill(2)}:00"
-        elif len(time_str) == 4:
-            time_str = f"{time_str[:2]}:{time_str[2:]}"
-        else:
-            time_str = "12:00"
-    else:
-        parts = time_str.split(':')
-        if len(parts) >= 2:
-            time_str = f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
-    
-    full_str = f"{dob_str.strip()} {time_str}"
-    try:
-        return datetime.strptime(full_str, '%d/%m/%Y %H:%M')
-    except ValueError:
-        try:
-            return datetime.strptime(full_str, '%Y-%m-%d %H:%M')
-        except ValueError:
-            raise ValueError("Formato de data/hora inválido.")
+# ========== NORMALIZAÇÃO DE NOMES ==========
+def normalize_city_name(city, country=None):
+    """
+    Garante nome bonito e consistente para UI.
+    """
+    if not city:
+        return None
 
-# ========== GEOCODING ==========
+    city = city.strip()
+
+    # Correções comuns / aliases
+    aliases = {
+        "new york city": "New York",
+        "nyc": "New York",
+        "sao paulo": "São Paulo",
+        "rio de janeiro": "Rio de Janeiro",
+        "london": "London",
+        "los angeles": "Los Angeles",
+        "buenos aires": "Buenos Aires",
+        "bangkok": "Banguecoque"
+    }
+
+    city_lower = city.lower()
+    city = aliases.get(city_lower, city.title())
+
+    if country:
+        return f"{city}, {country}"
+
+    return city
+
+# ========== GEOCODING (RETORNA OBJETO COMPLETO) ==========
 def get_natal_coordinates(city_name):
+    """
+    Retorna um dicionário com lat, lon, city, country, display_name.
+    """
     if not city_name or city_name.strip() == "":
         raise ValueError("Nome da cidade não pode estar vazio.")
-    
+
     url_photon = f"https://photon.komoot.io/api/?q={city_name}&limit=1"
     try:
         resp = requests.get(url_photon, timeout=10)
         if resp.status_code == 200:
             data = resp.json()
             if data and "features" in data and len(data["features"]) > 0:
-                coords = data["features"][0]["geometry"]["coordinates"]
-                return coords[1], coords[0]
+                feature = data["features"][0]
+                coords = feature["geometry"]["coordinates"]
+                props = feature.get("properties", {})
+
+                city = props.get("city") or props.get("name") or city_name
+                country = props.get("country")
+
+                display_name = normalize_city_name(city, country)
+
+                return {
+                    "lat": coords[1],
+                    "lon": coords[0],
+                    "city": city,
+                    "country": country,
+                    "display_name": display_name
+                }
     except Exception as e:
         logger.warning(f"Photon falhou para {city_name}: {e}")
 
+    # Fallback Nominatim
     url_nom = "https://nominatim.openstreetmap.org/search"
     params = {"q": city_name, "format": "json", "limit": 1}
     headers = {"User-Agent": "ProtocoloSolar_ValidacaoPassagem/1.0"}
@@ -274,22 +299,46 @@ def get_natal_coordinates(city_name):
         if resp.status_code == 200:
             data = resp.json()
             if data:
-                return float(data[0]['lat']), float(data[0]['lon'])
+                city = data[0].get("display_name", city_name).split(",")[0]
+                country = None
+                # Tenta extrair país do display_name
+                parts = data[0].get("display_name", "").split(",")
+                if len(parts) >= 2:
+                    country = parts[-1].strip()
+                return {
+                    "lat": float(data[0]['lat']),
+                    "lon": float(data[0]['lon']),
+                    "city": city,
+                    "country": country,
+                    "display_name": normalize_city_name(city, country)
+                }
     except Exception as e:
         logger.warning(f"Nominatim falhou para {city_name}: {e}")
 
     raise ValueError(f"Não foi possível geocodificar '{city_name}'.")
 
 def get_canonical_coordinates(city_name, country=None):
+    """
+    Primeiro busca no banco PREMIUM_CITIES; se não encontrar, chama a API.
+    Retorna objeto completo.
+    """
     for c in PREMIUM_CITIES:
         if c['city'].lower() == city_name.lower():
             if country is None or c['country'].lower() == country.lower():
-                return c['lat'], c['lon']
+                return {
+                    "lat": c['lat'],
+                    "lon": c['lon'],
+                    "city": c['city'],
+                    "country": c['country'],
+                    "display_name": normalize_city_name(c['city'], c['country'])
+                }
     return get_natal_coordinates(city_name)
 
-# ========== FUSO HORÁRIO ==========
+# ========== FUSO HORÁRIO (MELHORADO) ==========
 def get_timezone(lat, lon):
-    tz_name = tz_finder.certain_timezone_at(lat=lat, lng=lon)
+    tz_name = tz_finder.timezone_at(lat=lat, lng=lon)
+    if not tz_name:
+        tz_name = tz_finder.certain_timezone_at(lat=lat, lng=lon)
     if not tz_name:
         logger.warning(f"Fuso não encontrado para lat {lat}, lon {lon}. Usando UTC.")
         return pytz.UTC
@@ -304,6 +353,29 @@ def local_to_utc(lat, lon, local_datetime):
     except pytz.exceptions.NonExistentTimeError:
         local_dt = tz.localize(local_datetime + timedelta(hours=1), is_dst=True)
     return local_dt.astimezone(pytz.UTC)
+
+# ========== FUNÇÕES DE DATA ==========
+def parse_birth_datetime(dob_str, time_str):
+    time_str = time_str.strip()
+    if ':' not in time_str:
+        if len(time_str) <= 2:
+            time_str = f"{time_str.zfill(2)}:00"
+        elif len(time_str) == 4:
+            time_str = f"{time_str[:2]}:{time_str[2:]}"
+        else:
+            time_str = "12:00"
+    else:
+        parts = time_str.split(':')
+        if len(parts) >= 2:
+            time_str = f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
+    full_str = f"{dob_str.strip()} {time_str}"
+    try:
+        return datetime.strptime(full_str, '%d/%m/%Y %H:%M')
+    except ValueError:
+        try:
+            return datetime.strptime(full_str, '%Y-%m-%d %H:%M')
+        except ValueError:
+            raise ValueError("Formato de data/hora inválido.")
 
 # ========== CÁLCULOS ASTROLÓGICOS ==========
 def calculate_solar_return(jd_natal, target_year, birth_month, birth_day):
@@ -329,14 +401,32 @@ def get_house_superposition(sr_ascendant, natal_cusps):
                 return i + 1
     return 1
 
+def get_stable_house(city_lat, city_lon, jd_return, natal_cusps):
+    """Calcula a casa por consenso usando pequenos offsets (evita erro de cúspide)"""
+    offsets = [-0.15, 0, 0.15]
+    houses = []
+    for dlat in offsets:
+        for dlon in offsets:
+            lat = city_lat + dlat
+            lon = city_lon + dlon
+            _, ascmc = swe.houses_ex(jd_return, lat, lon, b'P')
+            sr_ascendant = ascmc[0]
+            house = get_house_superposition(sr_ascendant, natal_cusps)
+            houses.append(house)
+    counter = Counter(houses)
+    return counter.most_common(1)[0][0]
+
 def compute_solar_return_data(natal_data, target_year):
     birth_local = parse_birth_datetime(natal_data['dob'], natal_data['time'])
     natal_lat = natal_data.get('natal_lat')
     natal_lon = natal_data.get('natal_lon')
     if natal_lat is None or natal_lon is None:
-        natal_lat, natal_lon = get_canonical_coordinates(natal_data['place_of_birth'])
-    natal_lat = float(natal_lat)
-    natal_lon = float(natal_lon)
+        coords = get_canonical_coordinates(natal_data['place_of_birth'])
+        natal_lat = coords['lat']
+        natal_lon = coords['lon']
+    else:
+        natal_lat = float(natal_lat)
+        natal_lon = float(natal_lon)
 
     birth_utc = local_to_utc(natal_lat, natal_lon, birth_local)
     jd_natal = swe.julday(birth_utc.year, birth_utc.month, birth_utc.day,
@@ -347,9 +437,7 @@ def compute_solar_return_data(natal_data, target_year):
 
 def get_house_for_city(city_lat, city_lon, natal_data, target_year):
     jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
-    _, ascmc = swe.houses_ex(jd_return, city_lat, city_lon, b'P')
-    sr_ascendant = ascmc[0]
-    return get_house_superposition(sr_ascendant, natal_cusps)
+    return get_stable_house(city_lat, city_lon, jd_return, natal_cusps)
 
 def get_city_tier(city):
     if city['country'] == 'Brasil':
@@ -365,9 +453,28 @@ def get_city_tier(city):
         return 'highticket'
     return 'acessivel'
 
+# ========== SCORING INTELIGENTE ==========
 def score_city_for_house(city, house_id, user_intent):
-    # Prioridade apenas ao score de fama
-    return city.get("score", 0)
+    base_score = city.get("score", 0)
+    city_tags = city.get("tags", [])
+    archetype_tags = HOUSE_ARCHETYPES.get(house_id, [])
+    match_archetype = len(set(city_tags) & set(archetype_tags))
+
+    match_intent = 0
+    if user_intent:
+        intent_lower = user_intent.lower()
+        for tag in city_tags:
+            if tag in intent_lower:
+                match_intent += 1
+        for word in archetype_tags:
+            if word in intent_lower:
+                match_intent += 0.5
+
+    tier = get_city_tier(city)
+    tier_bonus = 2 if tier == "highticket" else (1 if tier == "acessivel" else 0)
+
+    total = base_score + (match_archetype * 3) + (match_intent * 2) + tier_bonus
+    return total
 
 def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
     results = {i: {
@@ -378,20 +485,20 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
     valid_cities_per_house = {i: [] for i in range(1, 13)}
 
     for city in PREMIUM_CITIES:
-        _, ascmc = swe.houses_ex(jd_return, city["lat"], city["lon"], b'P')
-        sr_ascendant = ascmc[0]
-        house = get_house_superposition(sr_ascendant, natal_cusps)
+        house = get_stable_house(city["lat"], city["lon"], jd_return, natal_cusps)
         total_score = score_city_for_house(city, house, user_intent)
+        display_name = normalize_city_name(city["city"], city["country"])
         
         city_data = {
             "city": city["city"],
             "country": city["country"],
             "continent": city["continent"],
-            "display_name": f"{city['city']}, {city['country']}",
+            "display_name": display_name,
             "lat": city["lat"],
             "lon": city["lon"],
             "tier": get_city_tier(city),
-            "score": total_score
+            "score": total_score,
+            "tags": city.get("tags", [])
         }
         valid_cities_per_house[house].append(city_data)
             
@@ -411,7 +518,6 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
 def find_all_cities_for_year(natal_data, target_year, user_intent=""):
     if not (1900 <= int(target_year) <= 2100):
         raise ValueError("Ano fora do limite seguro (1900-2100).")
-    
     jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
     return scan_premium_houses(jd_return, natal_cusps, user_intent)
 
