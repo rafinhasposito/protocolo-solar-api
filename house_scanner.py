@@ -11,13 +11,10 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Certifique-se de que este caminho está correto no seu servidor
 swe.set_ephe_path('/usr/share/sweph/ephe')
-
-# Carrega o buscador de fuso horário em memória global para altíssima performance
 tz_finder = TimezoneFinder()
 
-# ========== ARQUÉTIPOS DAS CASAS (SISTEMA DE SCORING) ==========
+# ========== ARQUÉTIPOS DAS CASAS ==========
 HOUSE_ARCHETYPES = {
     1: ["ação", "liderança", "iniciativa", "independência", "aventura", "esporte", "coragem", "natureza"],
     2: ["dinheiro", "segurança", "bens", "estabilidade", "luxo", "finanças", "conforto", "negócios"],
@@ -33,9 +30,11 @@ HOUSE_ARCHETYPES = {
     12: ["intuição", "espiritualidade", "isolamento", "cura", "retiro", "misticismo", "paz", "natureza"]
 }
 
-# ========== BANCO DE DADOS PREMIUM TAGUEADO E PONTUADO (120+ CIDADES) ==========
-PREMIUM_CITIES =, "score": 8},
+# ========== BANCO DE DADOS PREMIUM COMPLETO ==========
+PREMIUM_CITIES = [
+    # 1. BRASIL
     {"continent": "América do Sul", "country": "Brasil", "city": "São Paulo", "lat": -23.5505, "lon": -46.6333, "tags": ["carreira", "negócios", "fama", "dinheiro", "networking"], "score": 8},
+    {"continent": "América do Sul", "country": "Brasil", "city": "Rio de Janeiro", "lat": -22.9068, "lon": -43.1729, "tags": ["lazer", "criatividade", "praia", "fama", "diversão"], "score": 8},
     {"continent": "América do Sul", "country": "Brasil", "city": "Salvador", "lat": -12.9714, "lon": -38.5014, "tags": ["cultura", "festa", "espiritualidade", "história"], "score": 7},
     {"continent": "América do Sul", "country": "Brasil", "city": "Florianópolis", "lat": -27.5954, "lon": -48.5480, "tags": ["natureza", "bem-estar", "praia", "tecnologia", "inovação"], "score": 7},
     {"continent": "América do Sul", "country": "Brasil", "city": "Foz do Iguaçu", "lat": -25.5478, "lon": -54.5882, "tags": ["natureza", "energia", "turismo"], "score": 7},
@@ -80,34 +79,36 @@ PREMIUM_CITIES =, "score": 8},
     {"continent": "América do Sul", "country": "Brasil", "city": "Porto Velho", "lat": -8.7608, "lon": -63.8999, "tags": ["natureza", "isolamento"], "score": 2},
     {"continent": "América do Sul", "country": "Brasil", "city": "Teresina", "lat": -5.0892, "lon": -42.8019, "tags": ["negócios", "calor"], "score": 2},
 
-    # 1.5. AMÉRICA DO SUL (RESTANTE) E AMÉRICA CENTRAL
+    # 2. AMÉRICA DO SUL (EXCETO BRASIL)
     {"continent": "América do Sul", "country": "Argentina", "city": "Buenos Aires", "lat": -34.6037, "lon": -58.3816, "tags": ["cultura", "arte", "romance", "gastronomia"], "score": 8},
-    {"continent": "América Central", "country": "República Dominicana", "city": "Punta Cana", "lat": 18.5820, "lon": -68.4055, "tags": ["lazer", "romance", "praia", "diversão"], "score": 7},
-    {"continent": "América do Sul", "country": "Peru", "city": "Cusco", "lat": -13.5226, "lon": -71.9673, "tags": ["espiritualidade", "história", "misticismo", "transformação"], "score": 7},
     {"continent": "América do Sul", "country": "Argentina", "city": "Mendoza", "lat": -32.8895, "lon": -68.8458, "tags": ["romance", "luxo", "natureza", "gastronomia"], "score": 6},
     {"continent": "América do Sul", "country": "Argentina", "city": "Bariloche", "lat": -41.1335, "lon": -71.3103, "tags": ["natureza", "aventura", "frio", "romance"], "score": 6},
+    {"continent": "América do Sul", "country": "Argentina", "city": "Córdoba", "lat": -31.4201, "lon": -64.1888, "tags": ["estudos", "juventude", "cultura"], "score": 5},
     {"continent": "América do Sul", "country": "Chile", "city": "Santiago", "lat": -33.4489, "lon": -70.6693, "tags": ["negócios", "montanhas", "estabilidade"], "score": 6},
+    {"continent": "América do Sul", "country": "Chile", "city": "Valparaíso", "lat": -33.0456, "lon": -71.6197, "tags": ["arte", "cultura", "criatividade"], "score": 5},
     {"continent": "América do Sul", "country": "Uruguai", "city": "Punta del Este", "lat": -34.9667, "lon": -54.9500, "tags": ["luxo", "dinheiro", "status", "praia", "festa"], "score": 6},
+    {"continent": "América do Sul", "country": "Uruguai", "city": "Montevidéu", "lat": -34.9011, "lon": -56.1645, "tags": ["paz", "tranquilidade", "cultura"], "score": 5},
     {"continent": "América do Sul", "country": "Colômbia", "city": "Bogotá", "lat": 4.7110, "lon": -74.0721, "tags": ["negócios", "história", "frio"], "score": 6},
     {"continent": "América do Sul", "country": "Colômbia", "city": "Medellín", "lat": 6.2442, "lon": -75.5812, "tags": ["romance", "criatividade", "lazer", "inovação"], "score": 6},
     {"continent": "América do Sul", "country": "Colômbia", "city": "Cartagena", "lat": 10.3910, "lon": -75.4794, "tags": ["história", "romance", "calor", "praia"], "score": 6},
     {"continent": "América do Sul", "country": "Peru", "city": "Lima", "lat": -12.0464, "lon": -77.0428, "tags": ["gastronomia", "história", "cultura"], "score": 6},
+    {"continent": "América do Sul", "country": "Peru", "city": "Cusco", "lat": -13.5226, "lon": -71.9673, "tags": ["espiritualidade", "história", "misticismo", "transformação"], "score": 7},
+    {"continent": "América do Sul", "country": "Equador", "city": "Quito", "lat": -0.1807, "lon": -78.4678, "tags": ["história", "natureza", "altitude"], "score": 5},
+    {"continent": "América do Sul", "country": "Bolívia", "city": "La Paz", "lat": -16.4897, "lon": -68.1193, "tags": ["cultura", "isolamento", "misticismo"], "score": 4},
+    {"continent": "América do Sul", "country": "Paraguai", "city": "Assunção", "lat": -25.2637, "lon": -57.5759, "tags": ["comércio", "vendas", "dinheiro"], "score": 3},
+    {"continent": "América do Sul", "country": "Venezuela", "city": "Caracas", "lat": 10.4806, "lon": -66.9036, "tags": ["crise", "transformação", "intensidade"], "score": 2},
+
+    # 3. AMÉRICA CENTRAL E CARIBE
+    {"continent": "América Central", "country": "República Dominicana", "city": "Punta Cana", "lat": 18.5820, "lon": -68.4055, "tags": ["lazer", "romance", "praia", "diversão"], "score": 7},
     {"continent": "América Central", "country": "Panamá", "city": "Cidade do Panamá", "lat": 8.9824, "lon": -79.5199, "tags": ["negócios", "comércio", "dinheiro", "metrópole"], "score": 6},
     {"continent": "América Central", "country": "Cuba", "city": "Havana", "lat": 23.1136, "lon": -82.3666, "tags": ["história", "arte", "música", "passado"], "score": 6},
     {"continent": "América Central", "country": "Porto Rico", "city": "San Juan", "lat": 18.4655, "lon": -66.1057, "tags": ["festa", "cultura", "música"], "score": 6},
     {"continent": "América Central", "country": "Bahamas", "city": "Nassau", "lat": 25.0443, "lon": -77.3504, "tags": ["luxo", "praia", "lazer", "dinheiro"], "score": 6},
-    {"continent": "América do Sul", "country": "Argentina", "city": "Córdoba", "lat": -31.4201, "lon": -64.1888, "tags": ["estudos", "juventude", "cultura"], "score": 5},
-    {"continent": "América do Sul", "country": "Chile", "city": "Valparaíso", "lat": -33.0456, "lon": -71.6197, "tags": ["arte", "cultura", "criatividade"], "score": 5},
-    {"continent": "América do Sul", "country": "Uruguai", "city": "Montevidéu", "lat": -34.9011, "lon": -56.1645, "tags": ["paz", "tranquilidade", "cultura"], "score": 5},
-    {"continent": "América do Sul", "country": "Equador", "city": "Quito", "lat": -0.1807, "lon": -78.4678, "tags": ["história", "natureza", "altitude"], "score": 5},
     {"continent": "América Central", "country": "Costa Rica", "city": "San José", "lat": 9.9281, "lon": -84.0907, "tags": ["natureza", "bem-estar", "saúde", "paz"], "score": 5},
     {"continent": "América Central", "country": "República Dominicana", "city": "Santo Domingo", "lat": 18.4861, "lon": -69.9312, "tags": ["história", "praia"], "score": 5},
-    {"continent": "América do Sul", "country": "Bolívia", "city": "La Paz", "lat": -16.4897, "lon": -68.1193, "tags": ["cultura", "isolamento", "misticismo"], "score": 4},
     {"continent": "América Central", "country": "Guatemala", "city": "Cidade da Guatemala", "lat": 14.6349, "lon": -90.5069, "tags": ["história", "cultura"], "score": 4},
-    {"continent": "América do Sul", "country": "Paraguai", "city": "Assunção", "lat": -25.2637, "lon": -57.5759, "tags": ["comércio", "vendas", "dinheiro"], "score": 3},
-    {"continent": "América do Sul", "country": "Venezuela", "city": "Caracas", "lat": 10.4806, "lon": -66.9036, "tags": ["crise", "transformação", "intensidade"], "score": 2},
 
-    # 2. AMÉRICA DO NORTE
+    # 4. AMÉRICA DO NORTE
     {"continent": "América do Norte", "country": "EUA", "city": "Nova Iorque", "lat": 40.7128, "lon": -74.0060, "tags": ["carreira", "negócios", "fama", "dinheiro", "metrópole"], "score": 10},
     {"continent": "América do Norte", "country": "EUA", "city": "Los Angeles", "lat": 34.0522, "lon": -118.2437, "tags": ["fama", "criatividade", "cinema", "status", "arte"], "score": 9},
     {"continent": "América do Norte", "country": "EUA", "city": "Chicago", "lat": 41.8781, "lon": -87.6298, "tags": ["negócios", "arquitetura", "trabalho"], "score": 8},
@@ -151,7 +152,7 @@ PREMIUM_CITIES =, "score": 8},
     {"continent": "América do Norte", "country": "EUA", "city": "St. Louis", "lat": 38.6270, "lon": -90.1994, "tags": ["história", "comércio"], "score": 4},
     {"continent": "América do Norte", "country": "EUA", "city": "Kansas City", "lat": 39.0997, "lon": -94.5786, "tags": ["raízes", "estabilidade"], "score": 4},
 
-    # 3. EUROPA
+    # 5. EUROPA
     {"continent": "Europa", "country": "Reino Unido", "city": "Londres", "lat": 51.5074, "lon": -0.1278, "tags": ["fama", "poder", "negócios", "história", "dinheiro", "status"], "score": 10},
     {"continent": "Europa", "country": "França", "city": "Paris", "lat": 48.8566, "lon": 2.3522, "tags": ["romance", "arte", "beleza", "fama", "moda", "luxo"], "score": 10},
     {"continent": "Europa", "country": "Itália", "city": "Roma", "lat": 41.9028, "lon": 12.4964, "tags": ["história", "poder", "antiguidade", "religião", "arquitetura"], "score": 10},
@@ -162,22 +163,17 @@ PREMIUM_CITIES =, "score": 8},
     {"continent": "Europa", "country": "Holanda", "city": "Amesterdão", "lat": 52.3676, "lon": 4.9041, "tags": ["liberdade", "comércio", "inovação", "diversão", "tolerância"], "score": 9},
     {"continent": "Europa", "country": "Turquia", "city": "Istambul", "lat": 41.0082, "lon": 28.9784, "tags": ["cultura", "comércio", "mistério", "ponte", "história"], "score": 9},
     {"continent": "Europa", "country": "Portugal", "city": "Lisboa", "lat": 38.7223, "lon": -9.1393, "tags": ["luz", "história", "romance", "criatividade", "comunicação"], "score": 8},
+    {"continent": "Europa", "country": "Portugal", "city": "Porto", "lat": 41.1579, "lon": -8.6291, "tags": ["trabalho", "tradição", "negócios", "raízes"], "score": 7},
+    {"continent": "Europa", "country": "Portugal (Madeira)", "city": "Funchal", "lat": 32.6669, "lon": -16.9241, "tags": ["natureza", "beleza", "tranquilidade", "lazer"], "score": 7},
+    {"continent": "Europa", "country": "Portugal (Açores)", "city": "Ponta Delgada", "lat": 37.7412, "lon": -25.6677, "tags": ["natureza", "isolamento", "paz", "cura", "retiro"], "score": 5},
     {"continent": "Europa", "country": "Suíça", "city": "Zurique", "lat": 47.3769, "lon": 8.5417, "tags": ["dinheiro", "finanças", "segurança", "bancos", "ordem", "luxo"], "score": 8},
+    {"continent": "Europa", "country": "Suíça", "city": "Genebra", "lat": 46.2044, "lon": 6.1432, "tags": ["diplomacia", "paz", "alianças", "dinheiro"], "score": 7},
     {"continent": "Europa", "country": "Itália", "city": "Veneza", "lat": 45.4408, "lon": 12.3155, "tags": ["romance", "beleza", "água", "mistério", "arte"], "score": 8},
     {"continent": "Europa", "country": "Itália", "city": "Florença", "lat": 43.7696, "lon": 11.2558, "tags": ["arte", "criatividade", "beleza", "história", "renascimento"], "score": 8},
     {"continent": "Europa", "country": "Dinamarca", "city": "Copenhaga", "lat": 55.6761, "lon": 12.5683, "tags": ["design", "bem-estar", "sociedade", "ordem", "inovação"], "score": 8},
     {"continent": "Europa", "country": "Áustria", "city": "Viena", "lat": 48.2082, "lon": 16.3738, "tags": ["cultura", "arte", "música", "arquitetura", "psicologia"], "score": 8},
+    {"continent": "Europa", "country": "Áustria", "city": "Innsbruck", "lat": 47.2692, "lon": 11.4041, "tags": ["esporte", "aventura", "natureza"], "score": 5},
     {"continent": "Europa", "country": "Alemanha", "city": "Munique", "lat": 48.1351, "lon": 11.5820, "tags": ["dinheiro", "tecnologia", "tradição", "ordem"], "score": 8},
-    {"continent": "Europa", "country": "Turquia", "city": "Antália", "lat": 36.8969, "lon": 30.7133, "tags": ["mar", "descanso", "férias"], "score": 8},
-    {"continent": "Europa", "country": "Vaticano", "city": "Cidade do Vaticano", "lat": 41.9029, "lon": 12.4534, "tags": ["espiritualidade", "poder", "fé", "segredo", "religião"], "score": 8},
-    {"continent": "Europa", "country": "Grécia", "city": "Santorini", "lat": 36.3932, "lon": 25.4615, "tags": ["romance", "beleza", "luxo", "casamento"], "score": 8},
-    {"continent": "Europa", "country": "Mónaco", "city": "Monte Carlo", "lat": 43.7384, "lon": 7.4246, "tags": ["luxo", "dinheiro", "riqueza", "status", "exclusividade"], "score": 8},
-    {"continent": "Europa", "country": "Portugal", "city": "Porto", "lat": 41.1579, "lon": -8.6291, "tags": ["trabalho", "tradição", "negócios", "raízes"], "score": 7},
-    {"continent": "Europa", "country": "Espanha", "city": "Ibiza", "lat": 38.9067, "lon": 1.4206, "tags": ["festa", "diversão", "liberdade", "praia"], "score": 7},
-    {"continent": "Europa", "country": "Espanha", "city": "Sevilha", "lat": 37.3891, "lon": -5.9845, "tags": ["paixão", "cultura", "calor", "arte"], "score": 7},
-    {"continent": "Europa", "country": "França", "city": "Cannes", "lat": 43.5528, "lon": 7.0174, "tags": ["fama", "luxo", "cinema", "status", "glamour"], "score": 7},
-    {"continent": "Europa", "country": "França", "city": "Nice", "lat": 43.7102, "lon": 7.2620, "tags": ["beleza", "praia", "descanso", "luxo"], "score": 7},
-    {"continent": "Europa", "country": "Suíça", "city": "Genebra", "lat": 46.2044, "lon": 6.1432, "tags": ["diplomacia", "paz", "alianças", "dinheiro"], "score": 7},
     {"continent": "Europa", "country": "Alemanha", "city": "Frankfurt", "lat": 50.1109, "lon": 8.6821, "tags": ["finanças", "negócios", "bancos", "dinheiro", "poder"], "score": 7},
     {"continent": "Europa", "country": "Bélgica", "city": "Bruxelas", "lat": 50.8503, "lon": 4.3517, "tags": ["diplomacia", "poder", "alianças", "organização"], "score": 7},
     {"continent": "Europa", "country": "Reino Unido", "city": "Edimburgo", "lat": 55.9533, "lon": -3.1883, "tags": ["mistério", "história", "literatura", "arte"], "score": 7},
@@ -188,141 +184,46 @@ PREMIUM_CITIES =, "score": 8},
     {"continent": "Europa", "country": "Hungria", "city": "Budapeste", "lat": 47.4979, "lon": 19.0402, "tags": ["beleza", "águas termais", "saúde", "história"], "score": 7},
     {"continent": "Europa", "country": "Croácia", "city": "Dubrovnik", "lat": 42.6507, "lon": 18.0944, "tags": ["história", "mar", "beleza", "status"], "score": 7},
     {"continent": "Europa", "country": "Grécia", "city": "Atenas", "lat": 37.9838, "lon": 23.7275, "tags": ["filosofia", "sabedoria", "história", "raízes", "estudos"], "score": 7},
-    {"continent": "Europa", "country": "Grécia", "city": "Míconos", "lat": 37.4467, "lon": 25.3289, "tags": ["festa", "diversão", "liberdade", "luxo"], "score": 7},
-    {"continent": "Europa", "country": "Portugal (Madeira)", "city": "Funchal", "lat": 32.6669, "lon": -16.9241, "tags": ["natureza", "beleza", "tranquilidade", "lazer"], "score": 7},
-    {"continent": "Europa", "country": "Espanha", "city": "Valência", "lat": 39.4699, "lon": -0.3763, "tags": ["tecnologia", "praia", "inovação"], "score": 6},
-    {"continent": "Europa", "country": "Espanha", "city": "Málaga", "lat": 36.7213, "lon": -4.4213, "tags": ["arte", "história", "praia"], "score": 6},
-    {"continent": "Europa", "country": "Espanha", "city": "Granada", "lat": 37.1773, "lon": -3.5986, "tags": ["história", "misticismo", "arquitetura"], "score": 6},
-    {"continent": "Europa", "country": "França", "city": "Lyon", "lat": 45.7640, "lon": 4.8357, "tags": ["gastronomia", "cultura", "tradição"], "score": 6},
-    {"continent": "Europa", "country": "França", "city": "Bordéus", "lat": 44.8378, "lon": -0.5792, "tags": ["tradição", "luxo", "raízes"], "score": 6},
-    {"continent": "Europa", "country": "França", "city": "Marselha", "lat": 43.2965, "lon": 5.3698, "tags": ["comércio", "diversidade", "mar"], "score": 6},
-    {"continent": "Europa", "country": "Itália", "city": "Nápoles", "lat": 40.8518, "lon": 14.2681, "tags": ["paixão", "intensidade", "tradição"], "score": 6},
-    {"continent": "Europa", "country": "Itália", "city": "Turim", "lat": 45.0703, "lon": 7.6869, "tags": ["indústria", "mistério", "tecnologia"], "score": 6},
-    {"continent": "Europa", "country": "Itália", "city": "Bolonha", "lat": 44.4949, "lon": 11.3426, "tags": ["estudos", "conhecimento", "gastronomia"], "score": 6},
-    {"continent": "Europa", "country": "Alemanha", "city": "Hamburgo", "lat": 53.5511, "lon": 9.9937, "tags": ["comércio", "indústria", "mar", "vendas"], "score": 6},
-    {"continent": "Europa", "country": "Áustria", "city": "Salzburgo", "lat": 47.8095, "lon": 13.0550, "tags": ["música", "arte", "natureza"], "score": 6},
-    {"continent": "Europa", "country": "Holanda", "city": "Roterdão", "lat": 51.9225, "lon": 4.4792, "tags": ["arquitetura", "comércio", "inovação"], "score": 6},
-    {"continent": "Europa", "country": "Bélgica", "city": "Bruges", "lat": 51.2093, "lon": 3.2247, "tags": ["história", "romance", "beleza"], "score": 6},
-    {"continent": "Europa", "country": "Bélgica", "city": "Antuérpia", "lat": 51.2194, "lon": 4.4025, "tags": ["moda", "diamantes", "riqueza", "design"], "score": 6},
-    {"continent": "Europa", "country": "Reino Unido", "city": "Manchester", "lat": 53.4808, "lon": -2.2426, "tags": ["indústria", "inovação", "esporte"], "score": 6},
-    {"continent": "Europa", "country": "Reino Unido", "city": "Liverpool", "lat": 53.4084, "lon": -2.9916, "tags": ["música", "arte", "mar"], "score": 6},
-    {"continent": "Europa", "country": "Reino Unido", "city": "Oxford", "lat": 51.7520, "lon": -1.2577, "tags": ["estudos", "conhecimento", "tradição", "filosofia"], "score": 6},
-    {"continent": "Europa", "country": "Reino Unido", "city": "Cambridge", "lat": 52.2053, "lon": 0.1218, "tags": ["estudos", "ciência", "inovação", "conhecimento"], "score": 6},
-    {"continent": "Europa", "country": "Islândia", "city": "Reykjavik", "lat": 64.1466, "lon": -21.9426, "tags": ["natureza", "isolamento", "frio", "energia", "cura", "transformação"], "score": 6},
-    {"continent": "Europa", "country": "Suécia", "city": "Gotemburgo", "lat": 57.7089, "lon": 11.9746, "tags": ["sustentabilidade", "indústria", "natureza"], "score": 6},
-    {"continent": "Europa", "country": "Noruega", "city": "Bergen", "lat": 60.3913, "lon": 5.3221, "tags": ["natureza", "frio", "beleza"], "score": 6},
-    {"continent": "Europa", "country": "Finlândia", "city": "Helsínquia", "lat": 60.1699, "lon": 24.9384, "tags": ["educação", "tecnologia", "isolamento", "frio"], "score": 6},
-    {"continent": "Europa", "country": "Polónia", "city": "Varsóvia", "lat": 52.2297, "lon": 21.0122, "tags": ["renascimento", "história", "negócios"], "score": 6},
-    {"continent": "Europa", "country": "Polónia", "city": "Cracóvia", "lat": 50.0647, "lon": 19.9450, "tags": ["história", "tradição", "cultura"], "score": 6},
-    {"continent": "Europa", "country": "Croácia", "city": "Split", "lat": 43.5081, "lon": 16.4402, "tags": ["mar", "história", "verão"], "score": 6},
-    {"continent": "Europa", "country": "Grécia", "city": "Creta", "lat": 35.2401, "lon": 24.8093, "tags": ["mitologia", "história", "natureza"], "score": 6},
-    {"continent": "Europa", "country": "Portugal", "city": "Faro", "lat": 37.0194, "lon": -7.9304, "tags": ["praia", "lazer", "férias"], "score": 5},
-    {"continent": "Europa", "country": "Portugal", "city": "Coimbra", "lat": 40.2033, "lon": -8.4103, "tags": ["estudos", "conhecimento", "juventude", "história"], "score": 5},
-    {"continent": "Europa", "country": "Portugal (Açores)", "city": "Ponta Delgada", "lat": 37.7412, "lon": -25.6677, "tags": ["natureza", "isolamento", "paz", "cura", "retiro"], "score": 5},
-    {"continent": "Europa", "country": "França", "city": "Estrasburgo", "lat": 48.5734, "lon": 7.7521, "tags": ["política", "diplomacia", "união", "alianças"], "score": 5},
-    {"continent": "Europa", "country": "Suíça", "city": "Berna", "lat": 46.9480, "lon": 7.4474, "tags": ["política", "ordem", "poder"], "score": 5},
-    {"continent": "Europa", "country": "Suíça", "city": "Lausanne", "lat": 46.5197, "lon": 6.6323, "tags": ["esporte", "estudos", "natureza"], "score": 5},
-    {"continent": "Europa", "country": "Alemanha", "city": "Colónia", "lat": 50.9375, "lon": 6.9603, "tags": ["história", "religião", "comunicação"], "score": 5},
-    {"continent": "Europa", "country": "Alemanha", "city": "Düsseldorf", "lat": 51.2277, "lon": 6.7735, "tags": ["luxo", "moda", "negócios"], "score": 5},
-    {"continent": "Europa", "country": "Áustria", "city": "Innsbruck", "lat": 47.2692, "lon": 11.4041, "tags": ["esporte", "aventura", "natureza"], "score": 5},
-    {"continent": "Europa", "country": "Holanda", "city": "Haia", "lat": 52.0705, "lon": 4.3007, "tags": ["justiça", "diplomacia", "ordem", "alianças"], "score": 5},
-    {"continent": "Europa", "country": "Reino Unido", "city": "Bath", "lat": 51.3751, "lon": -2.3617, "tags": ["saúde", "cura", "história", "romance"], "score": 5},
-    {"continent": "Europa", "country": "Reino Unido", "city": "Glastonbury", "lat": 51.1463, "lon": -2.7153, "tags": ["espiritualidade", "misticismo", "lendas", "magia", "cura"], "score": 5},
-    {"continent": "Europa", "country": "Irlanda", "city": "Cork", "lat": 51.8985, "lon": -8.4756, "tags": ["cultura", "tradição", "gastronomia"], "score": 5},
-    {"continent": "Europa", "country": "Rússia", "city": "Moscovo", "lat": 55.7558, "lon": 37.6173, "tags": ["poder", "força", "autoridade", "transformação", "história"], "score": 5},
-    {"continent": "Europa", "country": "Eslovénia", "city": "Liubliana", "lat": 46.0569, "lon": 14.5058, "tags": ["natureza", "sustentabilidade", "paz"], "score": 5},
-    {"continent": "Europa", "country": "Croácia", "city": "Zagreb", "lat": 45.8150, "lon": 15.9819, "tags": ["cultura", "museus", "cafés"], "score": 5},
-    {"continent": "Europa", "country": "Luxemburgo", "city": "Luxemburgo", "lat": 49.8153, "lon": 6.1296, "tags": ["dinheiro", "finanças", "riqueza", "ordem"], "score": 5},
-    {"continent": "Europa", "country": "Portugal", "city": "Braga", "lat": 41.5454, "lon": -8.4265, "tags": ["religião", "paz", "tradição"], "score": 4},
-    {"continent": "Europa", "country": "Rússia", "city": "São Petersburgo", "lat": 59.9343, "lon": 30.3351, "tags": ["arte", "cultura", "beleza", "literatura"], "score": 4},
-    {"continent": "Europa", "country": "Eslováquia", "city": "Bratislava", "lat": 48.1486, "lon": 17.1077, "tags": ["tranquilidade", "rio", "história"], "score": 4},
-    {"continent": "Europa", "country": "Bulgária", "city": "Sófia", "lat": 42.6977, "lon": 23.3219, "tags": ["história", "religião", "tradição"], "score": 4},
-    {"continent": "Europa", "country": "Roménia", "city": "Bucareste", "lat": 44.4268, "lon": 26.1025, "tags": ["tecnologia", "contraste", "energia"], "score": 4},
-    {"continent": "Europa", "country": "Sérvia", "city": "Belgrado", "lat": 44.7866, "lon": 20.4489, "tags": ["vida noturna", "energia", "força"], "score": 4},
+    {"continent": "Europa", "country": "Grécia", "city": "Santorini", "lat": 36.3932, "lon": 25.4615, "tags": ["romance", "beleza", "luxo", "casamento"], "score": 8},
+    {"continent": "Europa", "country": "Mónaco", "city": "Monte Carlo", "lat": 43.7384, "lon": 7.4246, "tags": ["luxo", "dinheiro", "riqueza", "status", "exclusividade"], "score": 8},
+    {"continent": "Europa", "country": "Vaticano", "city": "Cidade do Vaticano", "lat": 41.9029, "lon": 12.4534, "tags": ["espiritualidade", "poder", "fé", "segredo", "religião"], "score": 8},
+    {"continent": "Europa", "country": "Espanha", "city": "Ibiza", "lat": 38.9067, "lon": 1.4206, "tags": ["festa", "diversão", "liberdade", "praia"], "score": 7},
+    {"continent": "Europa", "country": "França", "city": "Cannes", "lat": 43.5528, "lon": 7.0174, "tags": ["fama", "luxo", "cinema", "status", "glamour"], "score": 7},
+    {"continent": "Europa", "country": "França", "city": "Nice", "lat": 43.7102, "lon": 7.2620, "tags": ["beleza", "praia", "descanso", "luxo"], "score": 7},
 
-    # 4. ÁFRICA
+    # 6. ÁFRICA
     {"continent": "África", "country": "Marrocos", "city": "Marraquexe", "lat": 31.6295, "lon": -7.9811, "tags": ["cores", "comércio", "misticismo", "exotismo"], "score": 8},
     {"continent": "África", "country": "Egito", "city": "Cairo", "lat": 30.0444, "lon": 31.2357, "tags": ["antiguidade", "história", "mistério", "raízes"], "score": 8},
     {"continent": "África", "country": "África do Sul", "city": "Cidade do Cabo", "lat": -33.9249, "lon": 18.4241, "tags": ["natureza", "beleza", "aventura", "vinho", "turismo"], "score": 8},
     {"continent": "África", "country": "Tanzânia", "city": "Zanzibar", "lat": -6.1659, "lon": 39.2026, "tags": ["praia", "exotismo", "romance", "especiarias"], "score": 7},
-    {"continent": "África", "country": "Marrocos", "city": "Casablanca", "lat": 33.5731, "lon": -7.5898, "tags": ["negócios", "romance", "mar"], "score": 6},
-    {"continent": "África", "country": "Egito", "city": "Luxor", "lat": 25.6872, "lon": 32.6396, "tags": ["espiritualidade", "poder", "passado"], "score": 6},
-    {"continent": "África", "country": "África do Sul", "city": "Joanesburgo", "lat": -26.2041, "lon": 28.0473, "tags": ["negócios", "riqueza", "ouro", "indústria"], "score": 6},
-    {"continent": "África", "country": "Quénia", "city": "Nairobi", "lat": -1.2921, "lon": 36.8219, "tags": ["selvagem", "natureza", "tecnologia", "animais"], "score": 6},
     {"continent": "África", "country": "Seychelles", "city": "Mahé", "lat": -4.6796, "lon": 55.4920, "tags": ["luxo", "exclusividade", "natureza", "romance", "casamento"], "score": 6},
-    {"continent": "África", "country": "Marrocos", "city": "Fez", "lat": 34.0181, "lon": -5.0078, "tags": ["espiritualidade", "tradição", "história"], "score": 5},
-    {"continent": "África", "country": "Marrocos", "city": "Tânger", "lat": 35.7595, "lon": -5.8340, "tags": ["arte", "literatura", "encontros"], "score": 5},
-    {"continent": "África", "country": "Egito", "city": "Alexandria", "lat": 31.2001, "lon": 29.9187, "tags": ["conhecimento", "biblioteca", "mar"], "score": 5},
-    {"continent": "África", "country": "África do Sul", "city": "Durban", "lat": -29.8587, "lon": 31.0218, "tags": ["praia", "surf", "calor"], "score": 5},
-    {"continent": "África", "country": "Maurícia", "city": "Port Louis", "lat": -20.1609, "lon": 57.5012, "tags": ["luxo", "praia", "romance", "isolamento"], "score": 5},
-    {"continent": "África", "country": "Cabo Verde", "city": "Sal", "lat": 16.7412, "lon": -22.9441, "tags": ["sol", "praia", "descanso", "calor"], "score": 5},
-    {"continent": "África", "country": "Tunísia", "city": "Tunes", "lat": 36.8065, "lon": 10.1815, "tags": ["história", "mediterrâneo", "ruínas"], "score": 5},
-    {"continent": "África", "country": "Tanzânia", "city": "Arusha", "lat": -3.3869, "lon": 36.6830, "tags": ["aventura", "safari", "montanha"], "score": 4},
-    {"continent": "África", "country": "Tanzânia", "city": "Dar es Salaam", "lat": -6.7924, "lon": 39.2083, "tags": ["comércio", "porto", "agitação"], "score": 4},
-    {"continent": "África", "country": "Gana", "city": "Acra", "lat": 5.6037, "lon": -0.1870, "tags": ["energia", "crescimento", "cultura", "raízes"], "score": 4},
-    {"continent": "África", "country": "Senegal", "city": "Dacar", "lat": 14.7167, "lon": -17.4677, "tags": ["arte", "música", "oceano"], "score": 4},
-    {"continent": "África", "country": "Cabo Verde", "city": "Praia", "lat": 14.9315, "lon": -23.5125, "tags": ["música", "mar", "cultura"], "score": 3},
 
-    # 5. MÉDIO ORIENTE
+    # 7. MÉDIO ORIENTE
     {"continent": "Médio Oriente", "country": "Emirados Árabes", "city": "Dubai", "lat": 25.2048, "lon": 55.2708, "tags": ["dinheiro", "luxo", "comércio", "fama", "futuro", "negócios"], "score": 10},
     {"continent": "Médio Oriente", "country": "Emirados Árabes", "city": "Abu Dhabi", "lat": 24.4539, "lon": 54.3773, "tags": ["riqueza", "poder", "petróleo", "cultura", "luxo"], "score": 8},
     {"continent": "Médio Oriente", "country": "Catar", "city": "Doha", "lat": 25.2854, "lon": 51.5310, "tags": ["dinheiro", "arquitetura", "futuro", "esporte"], "score": 7},
-    {"continent": "Médio Oriente", "country": "Arábia Saudita", "city": "Riade", "lat": 24.7136, "lon": 46.6753, "tags": ["negócios", "poder", "tradição"], "score": 7},
     {"continent": "Médio Oriente", "country": "Israel", "city": "Jerusalém", "lat": 31.7683, "lon": 35.2137, "tags": ["espiritualidade", "religião", "história", "fé", "conflito"], "score": 7},
-    {"continent": "Médio Oriente", "country": "Jordânia", "city": "Petra", "lat": 30.3285, "lon": 35.4444, "tags": ["mistério", "antiguidade", "deserto", "aventura"], "score": 7},
-    {"continent": "Médio Oriente", "country": "Arábia Saudita", "city": "Jeddah", "lat": 21.2854, "lon": 39.2376, "tags": ["mar vermelho", "comércio", "religião"], "score": 6},
-    {"continent": "Médio Oriente", "country": "Israel", "city": "Tel Aviv", "lat": 32.0853, "lon": 34.7818, "tags": ["tecnologia", "inovação", "startups", "praia", "festa"], "score": 6},
-    {"continent": "Médio Oriente", "country": "Jordânia", "city": "Amã", "lat": 31.9454, "lon": 35.9284, "tags": ["hospitalidade", "história", "cultura"], "score": 5},
-    {"continent": "Médio Oriente", "country": "Omã", "city": "Mascate", "lat": 23.5880, "lon": 58.3829, "tags": ["tranquilidade", "tradição", "mar", "paz"], "score": 5},
-    {"continent": "Médio Oriente", "country": "Barém", "city": "Manama", "lat": 26.2285, "lon": 50.5860, "tags": ["finanças", "pérolas", "ilhas"], "score": 4},
-    {"continent": "Médio Oriente", "country": "Kuwait", "city": "Cidade do Kuwait", "lat": 29.3759, "lon": 47.9774, "tags": ["riqueza", "petróleo", "comércio"], "score": 4},
 
-    # 6. ÁSIA
+    # 8. ÁSIA
     {"continent": "Ásia", "country": "Tailândia", "city": "Banguecoque", "lat": 13.7563, "lon": 100.5018, "tags": ["comércio", "diversão", "templos", "gastronomia"], "score": 10},
     {"continent": "Ásia", "country": "Singapura", "city": "Singapura", "lat": 1.3521, "lon": 103.8198, "tags": ["tecnologia", "dinheiro", "ordem", "limpeza", "finanças", "futuro"], "score": 10},
     {"continent": "Ásia", "country": "Indonésia", "city": "Bali", "lat": -8.4095, "lon": 115.1889, "tags": ["espiritualidade", "cura", "natureza", "romance", "retiro", "bem-estar"], "score": 10},
     {"continent": "Ásia", "country": "Japão", "city": "Tóquio", "lat": 35.6762, "lon": 139.6503, "tags": ["tecnologia", "ordem", "trabalho", "futuro", "metrópole", "eficiência"], "score": 10},
     {"continent": "Ásia", "country": "Malásia", "city": "Kuala Lumpur", "lat": 3.1390, "lon": 101.6869, "tags": ["modernidade", "negócios", "compras", "mistura"], "score": 9},
     {"continent": "Ásia", "country": "China", "city": "Hong Kong", "lat": 22.3193, "lon": 114.1694, "tags": ["dinheiro", "comércio", "finanças", "tecnologia", "densidade"], "score": 9},
-    {"continent": "Ásia", "country": "China (Macau)", "city": "Macau", "lat": 22.1987, "lon": 113.5439, "tags": ["sorte", "cassinos", "dinheiro", "entretenimento", "jogos"], "score": 9},
     {"continent": "Ásia", "country": "Coreia do Sul", "city": "Seul", "lat": 37.5665, "lon": 126.9780, "tags": ["tecnologia", "beleza", "moda", "inovação", "dinheiro", "cultura pop"], "score": 9},
-    {"continent": "Ásia", "country": "Vietname", "city": "Hanói", "lat": 21.0285, "lon": 105.8542, "tags": ["tradição", "história", "cultura", "gastronomia"], "score": 8},
     {"continent": "Ásia", "country": "China", "city": "Pequim", "lat": 39.9042, "lon": 116.4074, "tags": ["poder", "história", "política", "autoridade", "tradição"], "score": 8},
     {"continent": "Ásia", "country": "China", "city": "Xangai", "lat": 31.2304, "lon": 121.4737, "tags": ["negócios", "finanças", "dinheiro", "futuro", "metrópole"], "score": 8},
     {"continent": "Ásia", "country": "Japão", "city": "Quioto", "lat": 35.0116, "lon": 135.7681, "tags": ["tradição", "espiritualidade", "templos", "paz", "cultura", "beleza"], "score": 8},
-    {"continent": "Ásia", "country": "Japão", "city": "Osaka", "lat": 34.6937, "lon": 135.5023, "tags": ["gastronomia", "comércio", "diversão", "pessoas"], "score": 8},
     {"continent": "Ásia", "country": "Índia", "city": "Mumbai", "lat": 19.0760, "lon": 72.8777, "tags": ["fama", "cinema", "negócios", "multidão", "intensidade"], "score": 7},
     {"continent": "Ásia", "country": "Índia", "city": "Nova Deli", "lat": 28.6139, "lon": 77.2090, "tags": ["poder", "política", "história", "caos", "transformação"], "score": 7},
-    {"continent": "Ásia", "country": "Tailândia", "city": "Phuket", "lat": 7.8804, "lon": 98.3922, "tags": ["praia", "turismo", "lazer", "festa"], "score": 7},
-    {"continent": "Ásia", "country": "Vietname", "city": "Ho Chi Minh", "lat": 10.8231, "lon": 106.6297, "tags": ["negócios", "energia", "crescimento", "dinheiro"], "score": 7},
-    {"continent": "Ásia", "country": "Taiwan", "city": "Taipé", "lat": 25.0330, "lon": 121.5654, "tags": ["tecnologia", "gastronomia", "organização", "inovação"], "score": 7},
-    {"continent": "Ásia", "country": "Índia", "city": "Goa", "lat": 15.2993, "lon": 74.1240, "tags": ["praia", "espiritualidade", "liberdade", "festa"], "score": 6},
-    {"continent": "Ásia", "country": "Índia", "city": "Jaipur", "lat": 26.9124, "lon": 75.7873, "tags": ["história", "realeza", "arquitetura", "joias"], "score": 6},
-    {"continent": "Ásia", "country": "Índia", "city": "Agra", "lat": 27.1767, "lon": 78.0081, "tags": ["romance", "amor", "monumentos"], "score": 6},
-    {"continent": "Ásia", "country": "Tailândia", "city": "Chiang Mai", "lat": 18.7883, "lon": 98.9853, "tags": ["retiro", "cura", "espiritualidade", "templos", "natureza"], "score": 6},
-    {"continent": "Ásia", "country": "Vietname", "city": "Da Nang", "lat": 16.0544, "lon": 108.2022, "tags": ["praia", "tecnologia", "pontes"], "score": 6},
-    {"continent": "Ásia", "country": "Camboja", "city": "Siem Reap", "lat": 13.3633, "lon": 103.8564, "tags": ["templos", "ruínas", "espiritualidade", "passado"], "score": 6},
-    {"continent": "Ásia", "country": "Malásia", "city": "Penang", "lat": 5.4164, "lon": 100.3327, "tags": ["gastronomia", "cultura", "patrimônio"], "score": 6},
-    {"continent": "Ásia", "country": "Indonésia", "city": "Jacarta", "lat": -6.2088, "lon": 106.8456, "tags": ["metrópole", "caos", "negócios", "crescimento"], "score": 6},
-    {"continent": "Ásia", "country": "Filipinas", "city": "Manila", "lat": 14.5995, "lon": 120.9842, "tags": ["comércio", "história", "hospitalidade"], "score": 6},
-    {"continent": "Ásia", "country": "Japão", "city": "Hokkaido", "lat": 43.2203, "lon": 142.8635, "tags": ["natureza", "frio", "neve", "esportes", "isolamento"], "score": 6},
-    {"continent": "Ásia", "country": "Coreia do Sul", "city": "Busan", "lat": 35.1796, "lon": 129.0756, "tags": ["praia", "cinema", "mar", "comércio"], "score": 6},
-    {"continent": "Ásia", "country": "Camboja", "city": "Phnom Penh", "lat": 11.5564, "lon": 104.9282, "tags": ["renascimento", "história", "comércio"], "score": 5},
-    {"continent": "Ásia", "country": "Filipinas", "city": "Cebu", "lat": 10.3157, "lon": 123.8854, "tags": ["praia", "mergulho", "natureza"], "score": 5},
 
-    # 7. OCEANIA & PACÍFICO
+    # 9. OCEANIA
     {"continent": "Oceania", "country": "Austrália", "city": "Sydney", "lat": -33.8688, "lon": 151.2093, "tags": ["praia", "ação", "negócios", "beleza", "esporte", "lazer"], "score": 9},
     {"continent": "Oceania", "country": "Austrália", "city": "Melbourne", "lat": -37.8136, "lon": 144.9631, "tags": ["arte", "cultura", "cafés", "criatividade"], "score": 8},
     {"continent": "Oceania", "country": "Polinésia Francesa", "city": "Bora Bora", "lat": -16.5004, "lon": -151.7415, "tags": ["luxo", "romance", "lua de mel", "exclusividade", "praia"], "score": 8},
     {"continent": "Oceania", "country": "Nova Zelândia", "city": "Auckland", "lat": -36.8485, "lon": 174.7633, "tags": ["mar", "vela", "natureza", "comércio"], "score": 7},
     {"continent": "Oceania", "country": "Havaí", "city": "Honolulu", "lat": 21.3069, "lon": -157.8583, "tags": ["praia", "surf", "natureza", "espírito aloha", "férias", "lazer"], "score": 7},
-    {"continent": "Oceania", "country": "Austrália", "city": "Brisbane", "lat": -27.4698, "lon": 153.0251, "tags": ["clima", "natureza", "bem-estar"], "score": 6},
-    {"continent": "Oceania", "country": "Austrália", "city": "Perth", "lat": -31.9505, "lon": 115.8605, "tags": ["isolamento", "praia", "mineração", "dinheiro"], "score": 6},
-    {"continent": "Oceania", "country": "Nova Zelândia", "city": "Queenstown", "lat": -45.0312, "lon": 168.6626, "tags": ["ação", "esporte", "aventura", "adrenalina", "natureza"], "score": 6},
-    {"continent": "Oceania", "country": "Polinésia Francesa", "city": "Taiti", "lat": -17.6509, "lon": -149.4260, "tags": ["natureza", "mar", "beleza", "afastamento"], "score": 6},
-    {"continent": "Oceania", "country": "Austrália", "city": "Uluru", "lat": -25.3444, "lon": 131.0369, "tags": ["espiritualidade", "misticismo", "terra", "isolamento", "sagrado"], "score": 5},
-    {"continent": "Oceania", "country": "Nova Zelândia", "city": "Wellington", "lat": -41.2865, "lon": 174.7762, "tags": ["política", "vento", "cultura", "arte"], "score": 5},
-    {"continent": "Oceania", "country": "Fiji", "city": "Nadi", "lat": -17.8065, "lon": 177.4136, "tags": ["praia", "paraíso", "hospitalidade", "isolamento", "romance"], "score": 5},
 ]
 
 # ========== FUNÇÕES AUXILIARES ==========
@@ -338,7 +239,7 @@ def parse_birth_datetime(dob_str, time_str):
     else:
         parts = time_str.split(':')
         if len(parts) >= 2:
-            time_str = f"{parts.zfill(2)}:{parts.[1]zfill(2)}"
+            time_str = f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
     
     full_str = f"{dob_str.strip()} {time_str}"
     try:
@@ -347,25 +248,23 @@ def parse_birth_datetime(dob_str, time_str):
         try:
             return datetime.strptime(full_str, '%Y-%m-%d %H:%M')
         except ValueError:
-            raise ValueError("Formato de data/hora inválido. Certifique-se de preencher os dados corretamente.")
+            raise ValueError("Formato de data/hora inválido.")
 
-# ========== GEOCODING BLINDADO (FALLBACK) ==========
-# NOTA: Com a nova atualização do HTML, o frontend já envia lat e lon direto.
-# Esta função agora existe apenas como um fallback absoluto caso algo falhe na comunicação.
+# ========== GEOCODING ==========
 def get_natal_coordinates(city_name):
     if not city_name or city_name.strip() == "":
-        raise ValueError("O nome da cidade não pode estar vazio.")
-
+        raise ValueError("Nome da cidade não pode estar vazio.")
+    
     url_photon = f"https://photon.komoot.io/api/?q={city_name}&limit=1"
     try:
         resp = requests.get(url_photon, timeout=10)
         if resp.status_code == 200:
             data = resp.json()
             if data and "features" in data and len(data["features"]) > 0:
-                coords = data["features"]["geometry"]["coordinates"]
-                return coords[1], coords
+                coords = data["features"][0]["geometry"]["coordinates"]
+                return coords[1], coords[0]
     except Exception as e:
-        logger.warning(f"Aviso - Falha no Photon para {city_name}: {e}")
+        logger.warning(f"Photon falhou para {city_name}: {e}")
 
     url_nom = "https://nominatim.openstreetmap.org/search"
     params = {"q": city_name, "format": "json", "limit": 1}
@@ -375,18 +274,24 @@ def get_natal_coordinates(city_name):
         if resp.status_code == 200:
             data = resp.json()
             if data:
-                return float(data['lat']), float(data['lon'])
+                return float(data[0]['lat']), float(data[0]['lon'])
     except Exception as e:
-        logger.warning(f"Aviso - Falha no Nominatim para {city_name}: {e}")
+        logger.warning(f"Nominatim falhou para {city_name}: {e}")
 
-    raise ValueError(f"CRÍTICO: O satélite não conseguiu precisar as coordenadas de '{city_name}'. O cálculo foi abortado por segurança (para não gerar um destino falso). Por favor, digite a cidade de forma mais específica no formato: 'Cidade, Estado, País'.")
+    raise ValueError(f"Não foi possível geocodificar '{city_name}'.")
 
-# ========== FUSO HORÁRIO E DATA ==========
+def get_canonical_coordinates(city_name, country=None):
+    for c in PREMIUM_CITIES:
+        if c['city'].lower() == city_name.lower():
+            if country is None or c['country'].lower() == country.lower():
+                return c['lat'], c['lon']
+    return get_natal_coordinates(city_name)
 
+# ========== FUSO HORÁRIO ==========
 def get_timezone(lat, lon):
     tz_name = tz_finder.certain_timezone_at(lat=lat, lng=lon)
     if not tz_name:
-        logger.warning(f"Fuso não encontrado para lat {lat}, lon {lon}. Usando UTC como segurança.")
+        logger.warning(f"Fuso não encontrado para lat {lat}, lon {lon}. Usando UTC.")
         return pytz.UTC
     return pytz.timezone(tz_name)
 
@@ -395,37 +300,27 @@ def local_to_utc(lat, lon, local_datetime):
     try:
         local_dt = tz.localize(local_datetime, is_dst=None)
     except pytz.exceptions.AmbiguousTimeError:
-        # A hora repete-se na saída do horário de verão. Assume inverno.
         local_dt = tz.localize(local_datetime, is_dst=False)
     except pytz.exceptions.NonExistentTimeError:
-        # BUG DO HORÁRIO FANTASMA CORRIGIDO: 
-        # A hora foi "saltada" pela entrada do horário de verão e "não existe".
-        # Solução: Adicionamos 1 hora e forçamos a leitura como DST.
         local_dt = tz.localize(local_datetime + timedelta(hours=1), is_dst=True)
     return local_dt.astimezone(pytz.UTC)
 
-# ========== MOTORES MATEMÁTICOS DE ASTROLOGIA ==========
-
+# ========== CÁLCULOS ASTROLÓGICOS ==========
 def calculate_solar_return(jd_natal, target_year, birth_month, birth_day):
     sun_pos, _ = swe.calc_ut(jd_natal, swe.SUN)
-    sun_longitude = sun_pos
-    
+    sun_longitude = sun_pos[0]
     try:
         start_date = datetime(target_year, birth_month, birth_day)
     except ValueError:
-        # Blindagem Crítica: 29 de fev em ano não bissexto
         start_date = datetime(target_year, 3, 1)
-        
     start_date -= timedelta(days=3)
     jd_start = swe.julday(start_date.year, start_date.month, start_date.day, 12.0)
-    
     return swe.solcross_ut(sun_longitude, jd_start)
 
 def get_house_superposition(sr_ascendant, natal_cusps):
     for i in range(12):
         cusp_start = natal_cusps[i]
-        cusp_end = natal_cusps if i == 11 else natal_cusps[i+1]
-        
+        cusp_end = natal_cusps[0] if i == 11 else natal_cusps[i+1]
         if cusp_start < cusp_end:
             if cusp_start <= sr_ascendant < cusp_end:
                 return i + 1
@@ -434,31 +329,45 @@ def get_house_superposition(sr_ascendant, natal_cusps):
                 return i + 1
     return 1
 
+def compute_solar_return_data(natal_data, target_year):
+    birth_local = parse_birth_datetime(natal_data['dob'], natal_data['time'])
+    natal_lat = natal_data.get('natal_lat')
+    natal_lon = natal_data.get('natal_lon')
+    if natal_lat is None or natal_lon is None:
+        natal_lat, natal_lon = get_canonical_coordinates(natal_data['place_of_birth'])
+    natal_lat = float(natal_lat)
+    natal_lon = float(natal_lon)
+
+    birth_utc = local_to_utc(natal_lat, natal_lon, birth_local)
+    jd_natal = swe.julday(birth_utc.year, birth_utc.month, birth_utc.day,
+                          birth_utc.hour + birth_utc.minute / 60.0)
+    jd_return = calculate_solar_return(jd_natal, int(target_year), birth_local.month, birth_local.day)
+    natal_cusps, _ = swe.houses_ex(jd_natal, natal_lat, natal_lon, b'P')
+    return jd_return, natal_cusps
+
+def get_house_for_city(city_lat, city_lon, natal_data, target_year):
+    jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
+    _, ascmc = swe.houses_ex(jd_return, city_lat, city_lon, b'P')
+    sr_ascendant = ascmc[0]
+    return get_house_superposition(sr_ascendant, natal_cusps)
+
 def get_city_tier(city):
     if city['country'] == 'Brasil':
         return 'nacional'
-    
-    high_ticket =
+    high_ticket = [
+        'EUA', 'Canadá', 'França', 'Itália', 'Reino Unido', 'Espanha',
+        'Suíça', 'Alemanha', 'Emirados Árabes', 'Japão', 'Austrália',
+        'Nova Zelândia', 'Mónaco', 'Vaticano', 'Holanda', 'Bélgica',
+        'Islândia', 'Dinamarca', 'Suécia', 'Noruega', 'Finlândia',
+        'Áustria', 'Luxemburgo', 'Singapura', 'Polinésia Francesa', 'Catar'
+    ]
     if city['country'] in high_ticket:
         return 'highticket'
     return 'acessivel'
 
 def score_city_for_house(city, house_id, user_intent):
-    city_tags = city.get("tags",)
-    city_ranking_score = city.get("score", 0) # Puxa a nova nota da cidade de 0 a 10
-
-    archetype_tags = HOUSE_ARCHETYPES.get(house_id,)
-    tag_score = 2 * len(set(city_tags) & set(archetype_tags))
-    
-    intent_score = 0
-    if user_intent:
-        intent_words = set(user_intent.lower().split())
-        for word in intent_words:
-            if len(word) > 3 and any(word in tag.lower() for tag in city_tags):
-                intent_score += 1
-                
-    # O cálculo final agora soma a força das tags, intenção e o novo score de atratividade
-    return tag_score + intent_score + city_ranking_score
+    # Prioridade apenas ao score de fama
+    return city.get("score", 0)
 
 def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
     results = {i: {
@@ -466,15 +375,13 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
         "options": {"highticket": None, "acessivel": None, "nacional": None}
     } for i in range(1, 13)}
     
-    valid_cities_per_house = {i: for i in range(1, 13)}
+    valid_cities_per_house = {i: [] for i in range(1, 13)}
 
     for city in PREMIUM_CITIES:
         _, ascmc = swe.houses_ex(jd_return, city["lat"], city["lon"], b'P')
-        sr_ascendant = ascmc
+        sr_ascendant = ascmc[0]
         house = get_house_superposition(sr_ascendant, natal_cusps)
-        
-        # Agora passamos a cidade INTEIRA para a função de cálculo poder usar o SCORE
-        score = score_city_for_house(city, house, user_intent)
+        total_score = score_city_for_house(city, house, user_intent)
         
         city_data = {
             "city": city["city"],
@@ -484,16 +391,15 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
             "lat": city["lat"],
             "lon": city["lon"],
             "tier": get_city_tier(city),
-            "score": score
+            "score": total_score
         }
         valid_cities_per_house[house].append(city_data)
             
     for i in range(1, 13):
         if valid_cities_per_house[i]:
             valid_cities_per_house[i].sort(key=lambda x: x["score"], reverse=True)
-            best_city = valid_cities_per_house[i]
+            best_city = valid_cities_per_house[i][0]
             tier = best_city["tier"]
-            
             results[i]["options"][tier] = best_city
             results[i]["city"] = best_city
             results[i]["lat"] = best_city["lat"]
@@ -503,40 +409,13 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
     return results
 
 def find_all_cities_for_year(natal_data, target_year, user_intent=""):
-    # TRAVA DO VIAJANTE DO TEMPO CORRIGIDA
     if not (1900 <= int(target_year) <= 2100):
-        raise ValueError("Ano astrológico fora do limite seguro (1900-2100). A operação foi abortada para proteger os motores astronómicos.")
+        raise ValueError("Ano fora do limite seguro (1900-2100).")
+    
+    jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
+    return scan_premium_houses(jd_return, natal_cusps, user_intent)
 
-    try:
-        birth_local = parse_birth_datetime(natal_data['dob'], natal_data['time'])
-        
-        natal_lat = natal_data.get('natal_lat')
-        natal_lon = natal_data.get('natal_lon')
-        
-        if natal_lat is None or natal_lon is None:
-            natal_lat, natal_lon = get_natal_coordinates(natal_data['place_of_birth'])
-
-        natal_lat = float(natal_lat)
-        natal_lon = float(natal_lon)
-
-        birth_utc = local_to_utc(natal_lat, natal_lon, birth_local)
-
-        jd_natal = swe.julday(birth_utc.year, birth_utc.month, birth_utc.day,
-                              birth_utc.hour + birth_utc.minute / 60.0)
-        
-        jd_return = calculate_solar_return(jd_natal, int(target_year), birth_local.month, birth_local.day)
-        
-        natal_cusps, _ = swe.houses_ex(jd_natal, natal_lat, natal_lon, b'P')
-        
-        return scan_premium_houses(jd_return, natal_cusps, user_intent)
-    except Exception as e:
-        logger.error(f"Erro no calculo matemático: {e}")
-        raise e
-
-# =====================================================================
-# MOTOR DE INTELIGÊNCIA ARTIFICIAL (GEMINI)
-# =====================================================================
-
+# ========== GEMINI ==========
 CHAVE_API = os.environ.get("GEMINI_API_KEY")
 if CHAVE_API:
     genai.configure(api_key=CHAVE_API)
@@ -544,12 +423,9 @@ if CHAVE_API:
 def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, cidades_destino_str, ano):
     if not CHAVE_API:
         return ""
-
     prompt_estrategico = prompt_recebido if prompt_recebido else f"Confirme a viagem de {nome} para ativar a Casa {casa_id}."
-    
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
-        
         resposta = model.generate_content(
             prompt_estrategico,
             generation_config=genai.types.GenerationConfig(
@@ -559,5 +435,5 @@ def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, c
         )
         return resposta.text.replace('\n', '<br>')
     except Exception as e:
-        logger.error(f"ERRO CRÍTICO NO GEMINI: {e}")
+        logger.error(f"ERRO GEMINI: {e}")
         return ""
