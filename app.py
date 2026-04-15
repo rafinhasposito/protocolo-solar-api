@@ -204,10 +204,20 @@ def audit_past():
         target_year = int(data["target_year"])
         validate_year(target_year)
 
+        # 🔥 CORREÇÃO CIRÚRGICA: Resolvendo a cidade natal antes do cálculo
+        if "place_of_birth" in data:
+            coords_natal = get_canonical_coordinates(
+                data["place_of_birth"], 
+                data.get("birth_country")
+            )
+            data["natal_lat"] = coords_natal["lat"]
+            data["natal_lon"] = coords_natal["lon"]
+
         cidade = data.get("past_city") or data.get("city")
         lat = data.get("past_lat")
         lon = data.get("past_lon")
 
+        # Resolvendo a cidade de destino (passado)
         if (lat is None or lon is None) and cidade:
             coords = get_canonical_coordinates(
                 cidade,
@@ -232,7 +242,7 @@ def audit_past():
 
         oraculo = gerar_oraculo_gemini(
             "Auditoria espiritual",
-            data["name"],
+            data.get("name", "Cliente"),
             "Auditoria",
             casa,
             nome_casa,
@@ -250,7 +260,6 @@ def audit_past():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @app.route("/health")
 def health():
