@@ -484,15 +484,18 @@ if CHAVE_API:
 
 def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, cidades_destino_str, ano):
     if not CHAVE_API:
-        raise RuntimeError("GEMINI_API_KEY não configurada no ambiente.")
+        return ""
     prompt_estrategico = prompt_recebido if prompt_recebido else f"Confirme a viagem de {nome} para ativar a Casa {casa_id}."
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         resposta = model.generate_content(
             prompt_estrategico,
-            generation_config=genai.types.GenerationConfig(temperature=0.7, max_output_tokens=150)
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.7,
+                max_output_tokens=150
+            )
         )
         return resposta.text.replace('\n', '<br>')
     except Exception as e:
         logger.error(f"ERRO GEMINI: {e}")
-        raise RuntimeError(f"Falha na comunicação com a IA: {str(e)}")
+        return ""
