@@ -4,6 +4,7 @@ from house_scanner import (
     find_all_cities_for_year,
     get_house_for_city,
     get_canonical_coordinates,
+    get_natal_coordinates,
     search_premium_cities,
     gerar_oraculo_gemini,
 )
@@ -94,20 +95,18 @@ def resolve_city():
 def find_city_for_house():
     try:
         data = request.get_json()
+        # 🔥 Removido birth_country da validação obrigatória
         error = validate_fields(data, [
-            "name", "place_of_birth", "birth_country", "dob",
+            "name", "place_of_birth", "dob",
             "time", "target_year", "target_house"
         ])
         if error:
             return jsonify({"error": error}), 400
             
-     # No início dos endpoints, dentro do bloco try:
-from house_scanner import get_natal_coordinates
-
-# Resolve Surubim ou qualquer cidade no mundo para o nascimento
-coords_natal = get_natal_coordinates(data["place_of_birth"], data.get("birth_country"))
-data["natal_lat"] = coords_natal["lat"]
-data["natal_lon"] = coords_natal["lon"]
+        # Resolve Surubim ou qualquer cidade no mundo para o nascimento
+        coords_natal = get_natal_coordinates(data["place_of_birth"], data.get("birth_country"))
+        data["natal_lat"] = coords_natal["lat"]
+        data["natal_lon"] = coords_natal["lon"]
             
         target_year = int(data["target_year"])
         validate_year(target_year)
@@ -130,14 +129,16 @@ data["natal_lon"] = coords_natal["lon"]
 def find_all_cities():
     try:
         data = request.get_json()
+        # 🔥 Removido birth_country da validação obrigatória
         error = validate_fields(data, [
-            "name", "place_of_birth", "birth_country", "dob",
+            "name", "place_of_birth", "dob",
             "time", "target_year"
         ])
         if error:
             return jsonify({"error": error}), 400
             
-        coords_natal = get_canonical_coordinates(data["place_of_birth"], data.get("birth_country"))
+        # Resolve Surubim ou qualquer cidade no mundo para o nascimento
+        coords_natal = get_natal_coordinates(data["place_of_birth"], data.get("birth_country"))
         data["natal_lat"] = coords_natal["lat"]
         data["natal_lon"] = coords_natal["lon"]
 
@@ -208,9 +209,8 @@ def audit_past():
         target_year = int(data["target_year"])
         validate_year(target_year)
 
-        # 🔥 CORREÇÃO CIRÚRGICA: Resolvendo a cidade natal antes do cálculo
         if "place_of_birth" in data:
-            coords_natal = get_canonical_coordinates(
+            coords_natal = get_natal_coordinates(
                 data["place_of_birth"], 
                 data.get("birth_country")
             )
@@ -221,7 +221,7 @@ def audit_past():
         lat = data.get("past_lat")
         lon = data.get("past_lon")
 
-        # Resolvendo a cidade de destino (passado)
+        # Resolvendo a cidade de destino (passado) usando a lógica híbrida
         if (lat is None or lon is None) and cidade:
             coords = get_canonical_coordinates(
                 cidade,
