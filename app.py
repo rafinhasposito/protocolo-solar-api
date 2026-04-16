@@ -101,9 +101,13 @@ def find_city_for_house():
         if error:
             return jsonify({"error": error}), 400
             
-        coords_natal = get_canonical_coordinates(data["place_of_birth"], data.get("birth_country"))
-        data["natal_lat"] = coords_natal["lat"]
-        data["natal_lon"] = coords_natal["lon"]
+     # No início dos endpoints, dentro do bloco try:
+from house_scanner import get_natal_coordinates
+
+# Resolve Surubim ou qualquer cidade no mundo para o nascimento
+coords_natal = get_natal_coordinates(data["place_of_birth"], data.get("birth_country"))
+data["natal_lat"] = coords_natal["lat"]
+data["natal_lon"] = coords_natal["lon"]
             
         target_year = int(data["target_year"])
         validate_year(target_year)
