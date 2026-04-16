@@ -114,7 +114,7 @@ PREMIUM_CITIES = [
     {"continent": "América do Norte", "country": "EUA", "city": "Los Angeles", "lat": 34.0522, "lon": -118.2437, "tags": ["fama", "criatividade", "cinema", "status", "arte"], "score": 9},
     {"continent": "América do Norte", "country": "EUA", "city": "Chicago", "lat": 41.8781, "lon": -87.6298, "tags": ["negócios", "arquitetura", "trabalho"], "score": 8},
     {"continent": "América do Norte", "country": "EUA", "city": "Miami", "lat": 25.7617, "lon": -80.1918, "tags": ["festa", "praia", "luxo", "diversão", "dinheiro"], "score": 8},
-    {"continent": "América do Norte", "country": "EUA", "city": "Las Vegas", "lat": 36.1699, "lon": -115.1398, "tags": ["sorte", "diversão", "entretainment", "dinheiro"], "score": 8},
+    {"continent": "América do Norte", "country": "EUA", "city": "Las Vegas", "lat": 36.1699, "lon": -115.1398, "tags": ["sorte", "diversão", "entretenimento", "dinheiro"], "score": 8},
     {"continent": "América do Norte", "country": "EUA", "city": "São Francisco", "lat": 37.7749, "lon": -122.4194, "tags": ["inovação", "tecnologia", "futuro", "networking"], "score": 8},
     {"continent": "América do Norte", "country": "Canadá", "city": "Toronto", "lat": 43.6510, "lon": -79.3470, "tags": ["negócios", "dinheiro", "metrópole", "trabalho"], "score": 8},
     {"continent": "América do Norte", "country": "Canadá", "city": "Vancouver", "lat": 49.2827, "lon": -123.1207, "tags": ["natureza", "bem-estar", "saúde", "qualidade de vida"], "score": 8},
@@ -231,9 +231,7 @@ PREMIUM_CITIES = [
 def normalize_city_name(city, country=None):
     if not city:
         return None
-
     city = city.strip()
-
     aliases = {
         "new york city": "New York",
         "nyc": "New York",
@@ -244,13 +242,10 @@ def normalize_city_name(city, country=None):
         "buenos aires": "Buenos Aires",
         "bangkok": "Banguecoque"
     }
-
     city_lower = city.lower()
     city = aliases.get(city_lower, city.title())
-
     if country:
         return f"{city}, {country}"
-
     return city
 
 # ========== NOVA BUSCA EXCLUSIVA NO BANCO PREMIUM ==========
@@ -268,22 +263,46 @@ def search_premium_cities(query, country=None):
                 matches.append(c)
     return matches
 
+# ========== BUSCA GLOBAL (RESTORED) ==========
+def get_natal_coordinates(city_name, country=None):
+    """Busca qualquer cidade no mundo via API global para garantir que cidades como Surubim funcionem."""
+    query = f"{city_name}, {country}" if country else city_name
+    url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1"
+    headers = {'User-Agent': 'HouseScannerApp/1.0'}
+    try:
+        resp = requests.get(url, headers=headers, timeout=10)
+        if resp.status_code == 200 and resp.json():
+            data = resp.json()[0]
+            return {
+                "lat": float(data["lat"]),
+                "lon": float(data["lon"])
+            }
+    except Exception as e:
+        logger.error(f"Erro na busca global para {query}: {e}")
+    raise ValueError(f"Não foi possível localizar as coordenadas para: {query}")
+
 # ========== GEOCODING SEGURO ==========
 def get_canonical_coordinates(city_name, country=None):
+    """Tenta o banco Premium; se não achar (ex: Surubim), usa a busca global."""
     matches = search_premium_cities(city_name, country)
-    if not matches:
-        raise ValueError(f"Cidade '{city_name}' não encontrada no banco premium.")
-    if len(matches) > 1:
-        options = [{"city": m['city'], "country": m['country']} for m in matches]
-        raise ValueError(f"Cidade ambigua. Opções: {options}")
+    if matches:
+        c = matches[0]
+        return {
+            "lat": c['lat'],
+            "lon": c['lon'],
+            "city": c['city'],
+            "country": c['country'],
+            "display_name": normalize_city_name(c['city'], c['country'])
+        }
     
-    c = matches[0]
+    # Fallback para busca global se não estiver no premium
+    coords = get_natal_coordinates(city_name, country)
     return {
-        "lat": c['lat'],
-        "lon": c['lon'],
-        "city": c['city'],
-        "country": c['country'],
-        "display_name": normalize_city_name(c['city'], c['country'])
+        "lat": coords["lat"],
+        "lon": coords["lon"],
+        "city": city_name,
+        "country": country,
+        "display_name": normalize_city_name(city_name, country)
     }
 
 # ========== FUSO HORÁRIO (TRAVADO CONTRA ERRO DE UTC) ==========
@@ -366,14 +385,14 @@ def get_stable_house(city_lat, city_lon, jd_return, natal_cusps):
     counter = Counter(houses)
     return counter.most_common(1)[0][0]
 
-# OBRIGA O PAÍS DA CIDADE NATAL
 def compute_solar_return_data(natal_data, target_year):
     birth_local = parse_birth_datetime(natal_data['dob'], natal_data['time'])
     natal_lat = natal_data.get('natal_lat')
     natal_lon = natal_data.get('natal_lon')
     
     if natal_lat is None or natal_lon is None:
-        raise ValueError("Coordenadas da cidade natal não fornecidas ou inválidas no payload.")
+        coords = get_natal_coordinates(natal_data['place_of_birth'], natal_data.get('birth_country'))
+        natal_lat, natal_lon = coords["lat"], coords["lon"]
         
     natal_lat = float(natal_lat)
     natal_lon = float(natal_lon)
@@ -403,15 +422,12 @@ def get_city_tier(city):
         return 'highticket'
     return 'acessivel'
 
-# ========== SCORING INTELIGENTE ==========
 def score_city_for_house(city, house_id, user_intent):
     base_score = city.get("score", 0)
     city_tags = city.get("tags", [])
     archetype_tags = HOUSE_ARCHETYPES.get(house_id, [])
-
     match_archetype = len(set(city_tags) & set(archetype_tags))
     match_intent = 0
-    
     if user_intent:
         intent_lower = user_intent.lower()
         for tag in city_tags:
@@ -420,90 +436,47 @@ def score_city_for_house(city, house_id, user_intent):
         for word in archetype_tags:
             if word in intent_lower:
                 match_intent += 0.5
-
     tier = get_city_tier(city)
     tier_bonus = 2 if tier == "highticket" else (1 if tier == "acessivel" else 0)
     total = base_score + (match_archetype * 3) + (match_intent * 4) + tier_bonus
-
     if match_intent >= 3:
         total += 8
     elif match_intent >= 2:
         total += 5
-
     return total
 
-# ========== SCAN PREMIUM ==========
 def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
-    results = {
-        i: {
-            "city": None,
-            "lat": None,
-            "lon": None,
-            "longitude": None,
-            "options": {
-                "highticket": [],
-                "acessivel": [],
-                "nacional": []
-            }
-        }
-        for i in range(1, 13)
-    }
-
+    results = {i: {"city": None, "lat": None, "lon": None, "longitude": None, "options": {"highticket": [], "acessivel": [], "nacional": []}} for i in range(1, 13)}
     valid_cities_per_house = {i: [] for i in range(1, 13)}
-
     for city in PREMIUM_CITIES:
         house = get_stable_house(city["lat"], city["lon"], jd_return, natal_cusps)
         total_score = score_city_for_house(city, house, user_intent)
         display_name = normalize_city_name(city["city"], city["country"])
-
-        city_data = {
-            "city": city["city"],
-            "country": city["country"],
-            "continent": city["continent"],
-            "display_name": display_name,
-            "lat": city["lat"],
-            "lon": city["lon"],
-            "tier": get_city_tier(city),
-            "score": total_score,
-            "tags": city.get("tags", [])
-        }
-
+        city_data = {"city": city["city"], "country": city["country"], "continent": city["continent"], "display_name": display_name, "lat": city["lat"], "lon": city["lon"], "tier": get_city_tier(city), "score": total_score, "tags": city.get("tags", [])}
         valid_cities_per_house[house].append(city_data)
-
     for i in range(1, 13):
         if valid_cities_per_house[i]:
             valid_cities_per_house[i].sort(key=lambda x: x["score"], reverse=True)
             best_city = valid_cities_per_house[i][0]
-
             results[i]["city"] = best_city
             results[i]["lat"] = best_city["lat"]
             results[i]["lon"] = best_city["lon"]
             results[i]["longitude"] = best_city["lon"]
-
-            tier_groups = {
-                "highticket": [],
-                "acessivel": [],
-                "nacional": []
-            }
-
+            tier_groups = {"highticket": [], "acessivel": [], "nacional": []}
             for city in valid_cities_per_house[i]:
                 tier_groups[city["tier"]].append(city)
-
             for tier in tier_groups:
                 tier_groups[tier].sort(key=lambda x: x["score"], reverse=True)
                 if tier_groups[tier]:
                     results[i]["options"][tier] = tier_groups[tier][:3]
-
     return results
 
-# ========== FUNÇÃO FINAL ==========
 def find_all_cities_for_year(natal_data, target_year, user_intent=""):
     if not (1900 <= int(target_year) <= 2100):
         raise ValueError("Ano fora do limite seguro (1900-2100).")
-
     jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
     return scan_premium_houses(jd_return, natal_cusps, user_intent)
-    
+
 # ========== GEMINI ==========
 CHAVE_API = os.environ.get("GEMINI_API_KEY")
 if CHAVE_API:
@@ -512,17 +485,12 @@ if CHAVE_API:
 def gerar_oraculo_gemini(prompt_recebido, nome, manifesto, casa_id, nome_casa, cidades_destino_str, ano):
     if not CHAVE_API:
         raise RuntimeError("GEMINI_API_KEY não configurada no ambiente.")
-        
     prompt_estrategico = prompt_recebido if prompt_recebido else f"Confirme a viagem de {nome} para ativar a Casa {casa_id}."
-    
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         resposta = model.generate_content(
             prompt_estrategico,
-            generation_config=genai.types.GenerationConfig(
-                temperature=0.7,
-                max_output_tokens=150
-            )
+            generation_config=genai.types.GenerationConfig(temperature=0.7, max_output_tokens=150)
         )
         return resposta.text.replace('\n', '<br>')
     except Exception as e:
