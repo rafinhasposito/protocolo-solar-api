@@ -6,7 +6,6 @@ from house_scanner import (
     get_canonical_coordinates,
     get_natal_coordinates,
     search_premium_cities,
-    gerar_oraculo_gemini,
 )
 
 app = Flask(__name__)
@@ -183,15 +182,8 @@ def find_all_cities():
 
         nome_casa = nomes_casas.get(alvo_id, f"Casa {alvo_id}")
 
-        oraculo = gerar_oraculo_gemini(
-            prompt_mestre,
-            nome_cliente,
-            manifesto,
-            alvo_id,
-            nome_casa,
-            cidade_str,
-            target_year
-        )
+        oraculo = ""
+
 
         return jsonify({
             "results": results,
@@ -244,15 +236,8 @@ def audit_past():
 
         nome_casa = nomes_casas.get(casa, f"Casa {casa}")
 
-        oraculo = gerar_oraculo_gemini(
-            "Auditoria espiritual",
-            data.get("name", "Cliente"),
-            "Auditoria",
-            casa,
-            nome_casa,
-            cidade,
-            target_year
-        )
+        oraculo = ""
+
 
         return jsonify({
             "house": casa,
@@ -271,4 +256,4 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5001, debug=False)
