@@ -263,21 +263,44 @@ def search_premium_cities(query, country=None):
     return matches
 
 # ========== BUSCA GLOBAL (RESTORED) ==========
+import urllib.parse
+
 def get_natal_coordinates(city_name, country=None):
-    """Busca qualquer cidade no mundo via API global para garantir que cidades como Surubim funcionem."""
+    """Busca cidade via Photon (fallback Nominatim), ignorando resultados que sejam estados/países para evitar erros de 150km."""
     query = f"{city_name}, {country}" if country else city_name
-    url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1"
-    headers = {'User-Agent': 'HouseScannerApp/1.0'}
+    query_encoded = urllib.parse.quote(query)
+
+    headers = {'User-Agent': 'ProtocoloSolar/1.0 (contato@protocolosolar.com.br)'}
+
+    # 1. Tentativa Primária: Photon (limit=5 para podermos filtrar estados que aparecem primeiro)
+    photon_url = f"https://photon.komoot.io/api/?q={query_encoded}&limit=5"
     try:
-        resp = requests.get(url, headers=headers, timeout=10)
+        resp = requests.get(photon_url, headers=headers, timeout=10)
+        if resp.status_code == 200 and resp.json():
+            data = resp.json()
+            features = data.get("features", [])
+            # Ignora estado, país, continente
+            valid_features = [
+                f for f in features
+                if f.get("properties", {}).get("osm_value") not in ["state", "country", "continent"]
+            ]
+            if valid_features:
+                coords = valid_features[0]["geometry"]["coordinates"]
+                # Retorno estrito: {"lat": float, "lon": float}
+                return {"lat": float(coords[1]), "lon": float(coords[0])}
+    except Exception as e:
+        logger.warning(f"Photon falhou para {query}, tentando fallback. Erro: {e}")
+
+    # 2. Fallback: Nominatim (o Nominatim nativamente prioriza a cidade antes do estado para 'São Paulo')
+    nominatim_url = f"https://nominatim.openstreetmap.org/search?q={query_encoded}&format=json&limit=1"
+    try:
+        resp = requests.get(nominatim_url, headers=headers, timeout=10)
         if resp.status_code == 200 and resp.json():
             data = resp.json()[0]
-            return {
-                "lat": float(data["lat"]),
-                "lon": float(data["lon"])
-            }
+            return {"lat": float(data["lat"]), "lon": float(data["lon"])}
     except Exception as e:
-        logger.error(f"Erro na busca global para {query}: {e}")
+        logger.error(f"Erro no fallback do Nominatim para {query}: {e}")
+
     raise ValueError(f"Não foi possível localizar as coordenadas para: {query}")
 
 # ========== GEOCODING SEGURO ==========
@@ -293,7 +316,7 @@ def get_canonical_coordinates(city_name, country=None):
             "country": c['country'],
             "display_name": normalize_city_name(c['city'], c['country'])
         }
-    
+
     # Fallback para busca global se não estiver no premium
     coords = get_natal_coordinates(city_name, country)
     return {
@@ -388,19 +411,19 @@ def compute_solar_return_data(natal_data, target_year):
     birth_local = parse_birth_datetime(natal_data['dob'], natal_data['time'])
     natal_lat = natal_data.get('natal_lat')
     natal_lon = natal_data.get('natal_lon')
-    
+
     if natal_lat is None or natal_lon is None:
         coords = get_natal_coordinates(natal_data['place_of_birth'], natal_data.get('birth_country'))
         natal_lat, natal_lon = coords["lat"], coords["lon"]
-        
+
     natal_lat = float(natal_lat)
     natal_lon = float(natal_lon)
-    
+
     birth_utc = local_to_utc(natal_lat, natal_lon, birth_local)
     jd_natal = swe.julday(birth_utc.year, birth_utc.month, birth_utc.day, birth_utc.hour + birth_utc.minute / 60.0)
     jd_return = calculate_solar_return(jd_natal, int(target_year), birth_local.month, birth_local.day)
     natal_cusps, _ = swe.houses_ex(jd_natal, natal_lat, natal_lon, b'P')
-    
+
     return jd_return, natal_cusps
 
 def get_house_for_city(city_lat, city_lon, natal_data, target_year):
