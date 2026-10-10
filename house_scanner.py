@@ -476,6 +476,16 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
         city_data = {"city": city["city"], "country": city["country"], "continent": city["continent"], "display_name": display_name, "lat": city["lat"], "lon": city["lon"], "tier": get_city_tier(city), "score": total_score, "tags": city.get("tags", [])}
         valid_cities_per_house[house].append(city_data)
     for i in range(1, 13):
+        if not valid_cities_per_house[i]:
+            all_scored = []
+            for city in PREMIUM_CITIES:
+                h = get_stable_house(city["lat"], city["lon"], jd_return, natal_cusps)
+                score = score_city_for_house(city, h, user_intent)
+                display_name = normalize_city_name(city["city"], city["country"])
+                all_scored.append({"city": city["city"], "country": city["country"], "continent": city["continent"], "display_name": display_name, "lat": city["lat"], "lon": city["lon"], "tier": get_city_tier(city), "score": max(50, score - 20), "tags": city.get("tags", [])})
+            all_scored.sort(key=lambda x: x["score"], reverse=True)
+            valid_cities_per_house[i] = all_scored[:10]
+
         if valid_cities_per_house[i]:
             valid_cities_per_house[i].sort(key=lambda x: x["score"], reverse=True)
             best_city = valid_cities_per_house[i][0]
