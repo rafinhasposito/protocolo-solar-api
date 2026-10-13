@@ -6,6 +6,8 @@ from house_scanner import (
     get_canonical_coordinates,
     get_natal_coordinates,
     search_premium_cities,
+    compute_solar_return_data,
+    jd_to_solar_return_info,
 )
 
 app = Flask(__name__)
@@ -136,7 +138,7 @@ def find_all_cities():
         validate_year(target_year)
         manifesto = data.get("intent", "")
         
-        results, return_time_utc = find_all_cities_for_year(data, target_year, manifesto)
+        results, astro_info = find_all_cities_for_year(data, target_year, manifesto)
 
         # NORMALIZAÇÃO GLOBAL
         for house_id, house_data in results.items():
@@ -179,7 +181,10 @@ def find_all_cities():
         return jsonify({
             "results": results,
             "oraculo": oraculo,
-            "return_time_utc": return_time_utc
+            "return_time_utc": astro_info.get("return_time_utc", ""),
+            "return_date": astro_info.get("return_date", ""),
+            "sun_sign": astro_info.get("sun_sign", ""),
+            "ascendant": astro_info.get("ascendant", "")
         })
 
     except Exception as e:
@@ -218,6 +223,8 @@ def audit_past():
             return jsonify({"error": "Cidade inválida"}), 400
 
         casa = get_house_for_city(lat, lon, data, target_year)
+        jd_return, _, sun_sign, natal_asc = compute_solar_return_data(data, target_year)
+        return_date, return_time_utc = jd_to_solar_return_info(jd_return)
 
         nomes_casas = {
             1: "O Herói", 2: "A Prosperidade", 3: "A Voz",
@@ -236,7 +243,11 @@ def audit_past():
             "house_name": nome_casa,
             "oraculo": oraculo,
             "lat": float(lat),
-            "lon": float(lon)
+            "lon": float(lon),
+            "return_date": return_date,
+            "return_time_utc": return_time_utc,
+            "sun_sign": sun_sign,
+            "ascendant": natal_asc
         })
 
     except Exception as e:

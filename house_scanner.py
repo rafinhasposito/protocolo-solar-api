@@ -406,6 +406,9 @@ def get_stable_house(city_lat, city_lon, jd_return, natal_cusps):
     counter = Counter(houses)
     return counter.most_common(1)[0][0]
 
+SIGNS_PT = ["Áries", "Touro", "Gêmeos", "Câncer", "Leão", "Virgem", "Libra", "Escorpião", "Sagitário", "Capricórnio", "Aquário", "Peixes"]
+MONTHS_PT = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+
 def compute_solar_return_data(natal_data, target_year):
     birth_local = parse_birth_datetime(natal_data['dob'], natal_data['time'])
     natal_lat = natal_data.get('natal_lat')
@@ -421,12 +424,16 @@ def compute_solar_return_data(natal_data, target_year):
     birth_utc = local_to_utc(natal_lat, natal_lon, birth_local)
     jd_natal = swe.julday(birth_utc.year, birth_utc.month, birth_utc.day, birth_utc.hour + birth_utc.minute / 60.0)
     jd_return = calculate_solar_return(jd_natal, int(target_year), birth_local.month, birth_local.day)
-    natal_cusps, _ = swe.houses_ex(jd_natal, natal_lat, natal_lon, b'P')
+    natal_cusps, natal_ascmc = swe.houses_ex(jd_natal, natal_lat, natal_lon, b'P')
 
-    return jd_return, natal_cusps
+    sun_pos, _ = swe.calc_ut(jd_natal, swe.SUN)
+    sun_sign = SIGNS_PT[int((sun_pos[0] % 360) / 30)]
+    natal_ascendant = SIGNS_PT[int((natal_ascmc[0] % 360) / 30)]
+
+    return jd_return, natal_cusps, sun_sign, natal_ascendant
 
 def get_house_for_city(city_lat, city_lon, natal_data, target_year):
-    jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
+    jd_return, natal_cusps, _, _ = compute_solar_return_data(natal_data, target_year)
     return get_stable_house(city_lat, city_lon, jd_return, natal_cusps)
 
 def get_city_tier(city):
@@ -502,21 +509,29 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
                     results[i]["options"][tier] = tier_groups[tier][:3]
     return results
 
-def jd_to_utc_string(jd):
-    """Convert Julian Day to a UTC time string like '05:30 (UTC)'."""
+def jd_to_solar_return_info(jd):
+    """Convert Julian Day to formatted date and UTC time string."""
     try:
         year, month, day, hour_frac = swe.revjul(jd)
         hours = int(hour_frac)
         minutes = int((hour_frac - hours) * 60)
-        return f"{hours:02d}:{minutes:02d} (UTC)"
+        date_str = f"{day:02d} de {MONTHS_PT[month]}, {year}"
+        time_str = f"{hours:02d}:{minutes:02d} (UTC)"
+        return date_str, time_str
     except Exception:
-        return "--:-- (UTC)"
+        return "", "--:-- (UTC)"
 
 def find_all_cities_for_year(natal_data, target_year, user_intent=""):
     if not (1900 <= int(target_year) <= 2100):
         raise ValueError("Ano fora do limite seguro (1900-2100).")
-    jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
+    jd_return, natal_cusps, sun_sign, natal_asc = compute_solar_return_data(natal_data, target_year)
     results = scan_premium_houses(jd_return, natal_cusps, user_intent)
-    return_time_utc = jd_to_utc_string(jd_return)
-    return results, return_time_utc
+    return_date, return_time_utc = jd_to_solar_return_info(jd_return)
+    astro_info = {
+        "return_date": return_date,
+        "return_time_utc": return_time_utc,
+        "sun_sign": sun_sign,
+        "ascendant": natal_asc
+    }
+    return results, astro_info
 
