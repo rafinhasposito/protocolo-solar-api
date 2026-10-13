@@ -502,9 +502,21 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
                     results[i]["options"][tier] = tier_groups[tier][:3]
     return results
 
+def jd_to_utc_string(jd):
+    """Convert Julian Day to a UTC time string like '05:30 (UTC)'."""
+    try:
+        year, month, day, hour_frac = swe.revjul(jd)
+        hours = int(hour_frac)
+        minutes = int((hour_frac - hours) * 60)
+        return f"{hours:02d}:{minutes:02d} (UTC)"
+    except Exception:
+        return "--:-- (UTC)"
+
 def find_all_cities_for_year(natal_data, target_year, user_intent=""):
     if not (1900 <= int(target_year) <= 2100):
         raise ValueError("Ano fora do limite seguro (1900-2100).")
     jd_return, natal_cusps = compute_solar_return_data(natal_data, target_year)
-    return scan_premium_houses(jd_return, natal_cusps, user_intent)
+    results = scan_premium_houses(jd_return, natal_cusps, user_intent)
+    return_time_utc = jd_to_utc_string(jd_return)
+    return results, return_time_utc
 

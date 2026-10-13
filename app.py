@@ -25,22 +25,13 @@ def validate_year(year):
         raise ValueError("Ano fora do limite seguro (1900-2100).")
 
 def normalize_city(city_data):
-    if not city_data:
-        return None
-
-    city = city_data.get("city")
-    country = city_data.get("country")
-    display_name = city_data.get("display_name") or (
-        f"{city}, {country}" if city and country else city
-    )
-
-    return {
-        "city": city,
-        "country": country,
-        "lat": city_data.get("lat"),
-        "lon": city_data.get("lon"),
-        "display_name": display_name
-    }
+    if not city_data: return None
+    new_data = city_data.copy()
+    city = new_data.get("city", "")
+    country = new_data.get("country", "")
+    if "display_name" not in new_data:
+        new_data["display_name"] = f"{city}, {country}" if country else city
+    return new_data
 
 # =============================
 # ENDPOINTS DE SEGURANÇA E AUTOCOMPLETE
@@ -112,7 +103,7 @@ def find_city_for_house():
         target_house = int(data["target_house"])
         manifesto = data.get("intent", "")
         
-        casas = find_all_cities_for_year(data, target_year, manifesto)
+        casas, _ = find_all_cities_for_year(data, target_year, manifesto)
         casa = casas.get(target_house)
         
         if not casa or not casa.get("city"):
@@ -145,7 +136,7 @@ def find_all_cities():
         validate_year(target_year)
         manifesto = data.get("intent", "")
         
-        results = find_all_cities_for_year(data, target_year, manifesto)
+        results, return_time_utc = find_all_cities_for_year(data, target_year, manifesto)
 
         # NORMALIZAÇÃO GLOBAL
         for house_id, house_data in results.items():
@@ -187,7 +178,8 @@ def find_all_cities():
 
         return jsonify({
             "results": results,
-            "oraculo": oraculo
+            "oraculo": oraculo,
+            "return_time_utc": return_time_utc
         })
 
     except Exception as e:
