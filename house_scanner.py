@@ -228,106 +228,40 @@ PREMIUM_CITIES = [
 
 # ========== BANCO DE DADOS FALLBACK (Preenchimento de lacunas) ==========
 FALLBACK_CITIES = [
-    # Brasil & América do Sul (Meridianos -34° a -78°)
-    {"continent": "Américas", "country": "Brasil", "city": "Belo Horizonte", "lat": -19.9167, "lon": -43.9345, "tags": ["negócios", "cultura"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Brasília", "lat": -15.7975, "lon": -47.8919, "tags": ["poder", "arquitetura"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Curitiba", "lat": -25.4284, "lon": -49.2733, "tags": ["organização", "natureza"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Porto Alegre", "lat": -30.0346, "lon": -51.2177, "tags": ["cultura", "comércio"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Recife", "lat": -8.0476, "lon": -34.8770, "tags": ["história", "praia", "inovação"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Fortaleza", "lat": -3.7172, "lon": -38.5433, "tags": ["praia", "sol", "lazer"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Natal", "lat": -5.7945, "lon": -35.2110, "tags": ["praia", "natureza"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Maceió", "lat": -9.6658, "lon": -35.7353, "tags": ["praia", "descanso"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Goiânia", "lat": -16.6869, "lon": -49.2648, "tags": ["negócios"], "score": 6},
-    {"continent": "Américas", "country": "Brasil", "city": "Manaus", "lat": -3.1190, "lon": -60.0217, "tags": ["natureza", "aventura"], "score": 7},
-    {"continent": "Américas", "country": "Brasil", "city": "Belém", "lat": -1.4558, "lon": -48.4902, "tags": ["gastronomia", "cultura"], "score": 6},
-    {"continent": "Américas", "country": "Uruguai", "city": "Montevidéu", "lat": -34.9011, "lon": -56.1645, "tags": ["paz", "cultura"], "score": 7},
-    {"continent": "Américas", "country": "Argentina", "city": "Mendoza", "lat": -32.8895, "lon": -68.8458, "tags": ["vinho", "natureza"], "score": 7},
-    {"continent": "Américas", "country": "Argentina", "city": "Córdoba", "lat": -31.4201, "lon": -64.1888, "tags": ["estudos", "história"], "score": 6},
-    {"continent": "Américas", "country": "Argentina", "city": "Salta", "lat": -24.7821, "lon": -65.4232, "tags": ["história"], "score": 6},
-    {"continent": "Américas", "country": "Argentina", "city": "Ushuaia", "lat": -54.8019, "lon": -68.3030, "tags": ["aventura", "natureza"], "score": 7},
-    {"continent": "Américas", "country": "Chile", "city": "Viña del Mar", "lat": -33.0245, "lon": -71.5518, "tags": ["praia"], "score": 6},
-    {"continent": "Américas", "country": "Colômbia", "city": "Medellín", "lat": 6.2442, "lon": -75.5812, "tags": ["inovação", "clima"], "score": 7},
-    {"continent": "Américas", "country": "Colômbia", "city": "Cali", "lat": 3.4516, "lon": -76.5320, "tags": ["festa"], "score": 6},
-    {"continent": "Américas", "country": "Peru", "city": "Arequipa", "lat": -16.4090, "lon": -71.5375, "tags": ["natureza"], "score": 6},
-    {"continent": "Américas", "country": "Equador", "city": "Quito", "lat": -0.1807, "lon": -78.4678, "tags": ["história"], "score": 6},
-    # América do Norte, Central & Caribe (Meridianos -60° a -160°)
-    {"continent": "Américas", "country": "Panamá", "city": "Cidade do Panamá", "lat": 8.9824, "lon": -79.5199, "tags": ["negócios", "comércio"], "score": 7},
-    {"continent": "Américas", "country": "Costa Rica", "city": "San José", "lat": 9.9281, "lon": -84.0907, "tags": ["natureza", "bem-estar"], "score": 7},
-    {"continent": "Américas", "country": "República Dominicana", "city": "Punta Cana", "lat": 18.5601, "lon": -68.3725, "tags": ["praia", "lazer"], "score": 7},
-    {"continent": "Américas", "country": "Porto Rico", "city": "San Juan", "lat": 18.4655, "lon": -66.1057, "tags": ["praia", "história"], "score": 7},
-    {"continent": "Américas", "country": "Bahamas", "city": "Nassau", "lat": 25.0443, "lon": -77.3504, "tags": ["luxo", "praia"], "score": 7},
-    {"continent": "Américas", "country": "México", "city": "Guadalajara", "lat": 20.6597, "lon": -103.3496, "tags": ["cultura"], "score": 7},
-    {"continent": "Américas", "country": "México", "city": "Monterrey", "lat": 25.6866, "lon": -100.3161, "tags": ["negócios"], "score": 7},
-    {"continent": "Américas", "country": "México", "city": "Los Cabos", "lat": 22.8905, "lon": -109.9167, "tags": ["luxo", "praia"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "Boston", "lat": 42.3601, "lon": -71.0589, "tags": ["estudos", "ciência"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "Chicago", "lat": 41.8781, "lon": -87.6298, "tags": ["arquitetura", "negócios"], "score": 7},
+    # Américas
+    {"continent": "Américas", "country": "México", "city": "Guadalajara", "lat": 20.6597, "lon": -103.3496, "tags": ["cultura"], "score": 6},
+    {"continent": "Américas", "country": "Argentina", "city": "Salta", "lat": -24.7821, "lon": -65.4232, "tags": ["história"], "score": 5},
+    {"continent": "Américas", "country": "Chile", "city": "Viña del Mar", "lat": -33.0245, "lon": -71.5518, "tags": ["praia"], "score": 5},
+    {"continent": "Américas", "country": "Colômbia", "city": "Cali", "lat": 3.4516, "lon": -76.5320, "tags": ["festa"], "score": 5},
+    {"continent": "Américas", "country": "Peru", "city": "Arequipa", "lat": -16.4090, "lon": -71.5375, "tags": ["natureza"], "score": 5},
     {"continent": "Américas", "country": "EUA", "city": "Nova Orleans", "lat": 29.9511, "lon": -90.0715, "tags": ["música"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "Austin", "lat": 30.2672, "lon": -97.7431, "tags": ["inovação"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "Denver", "lat": 39.7392, "lon": -104.9903, "tags": ["montanha", "esporte"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "Las Vegas", "lat": 36.1699, "lon": -115.1398, "tags": ["entretenimento", "festa"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "San Diego", "lat": 32.7157, "lon": -117.1611, "tags": ["praia", "bem-estar"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "Seattle", "lat": 47.6062, "lon": -122.3321, "tags": ["tecnologia", "natureza"], "score": 7},
-    {"continent": "Américas", "country": "EUA", "city": "Anchorage", "lat": 61.2181, "lon": -149.9003, "tags": ["natureza", "aventura"], "score": 6},
-    {"continent": "Américas", "country": "Canadá", "city": "Montreal", "lat": 45.5017, "lon": -73.5673, "tags": ["cultura", "arte"], "score": 7},
-    {"continent": "Américas", "country": "Canadá", "city": "Calgary", "lat": 51.0447, "lon": -114.0719, "tags": ["natureza", "negócios"], "score": 6},
+    {"continent": "Américas", "country": "EUA", "city": "Austin", "lat": 30.2672, "lon": -97.7431, "tags": ["inovação"], "score": 6},
     {"continent": "Américas", "country": "Canadá", "city": "Victoria", "lat": 48.4284, "lon": -123.3656, "tags": ["natureza"], "score": 6},
-    # Atlântico & Europa (Meridianos -28° a +30°)
-    {"continent": "Europa", "country": "Portugal", "city": "Funchal", "lat": 32.6669, "lon": -16.9241, "tags": ["natureza", "descanso"], "score": 7},
-    {"continent": "Europa", "country": "Espanha", "city": "Tenerife", "lat": 28.2916, "lon": -16.6291, "tags": ["praia", "clima"], "score": 7},
-    {"continent": "Europa", "country": "Espanha", "city": "Sevilha", "lat": 37.3891, "lon": -5.9845, "tags": ["cultura"], "score": 7},
-    {"continent": "Europa", "country": "Espanha", "city": "Valência", "lat": 39.4699, "lon": -0.3763, "tags": ["praia", "design"], "score": 7},
-    {"continent": "Europa", "country": "Reino Unido", "city": "Manchester", "lat": 53.4808, "lon": -2.2426, "tags": ["música"], "score": 6},
-    {"continent": "Europa", "country": "França", "city": "Lyon", "lat": 45.7640, "lon": 4.8357, "tags": ["gastronomia"], "score": 7},
-    {"continent": "Europa", "country": "Bélgica", "city": "Bruxelas", "lat": 50.8503, "lon": 4.3517, "tags": ["diplomacia"], "score": 7},
-    {"continent": "Europa", "country": "Alemanha", "city": "Hamburgo", "lat": 53.5511, "lon": 9.9937, "tags": ["comércio"], "score": 7},
-    {"continent": "Europa", "country": "Alemanha", "city": "Frankfurt", "lat": 50.1109, "lon": 8.6821, "tags": ["finanças", "negócios"], "score": 7},
+    # Europa
     {"continent": "Europa", "country": "Itália", "city": "Nápoles", "lat": 40.8518, "lon": 14.2681, "tags": ["história"], "score": 7},
-    {"continent": "Europa", "country": "Finlândia", "city": "Helsinque", "lat": 60.1699, "lon": 24.9384, "tags": ["design"], "score": 7},
-    {"continent": "Europa", "country": "Polônia", "city": "Varsóvia", "lat": 52.2297, "lon": 21.0122, "tags": ["história"], "score": 7},
+    {"continent": "Europa", "country": "Espanha", "city": "Sevilha", "lat": 37.3891, "lon": -5.9845, "tags": ["cultura"], "score": 7},
+    {"continent": "Europa", "country": "Alemanha", "city": "Hamburgo", "lat": 53.5511, "lon": 9.9937, "tags": ["comércio"], "score": 7},
+    {"continent": "Europa", "country": "Reino Unido", "city": "Manchester", "lat": 53.4808, "lon": -2.2426, "tags": ["música"], "score": 6},
+    {"continent": "Europa", "country": "Finlândia", "city": "Helsinque", "lat": 60.1699, "lon": 24.9384, "tags": ["design"], "score": 6},
+    {"continent": "Europa", "country": "Polônia", "city": "Varsóvia", "lat": 52.2297, "lon": 21.0122, "tags": ["história"], "score": 6},
     {"continent": "Europa", "country": "Grécia", "city": "Mykonos", "lat": 37.4467, "lon": 25.3287, "tags": ["festa"], "score": 7},
-    {"continent": "Europa", "country": "Romênia", "city": "Bucareste", "lat": 44.4268, "lon": 26.1025, "tags": ["história"], "score": 6},
-    # África (Meridianos -23° a +57°)
-    {"continent": "África", "country": "Cabo Verde", "city": "Ilha do Sal", "lat": 16.7350, "lon": -22.9430, "tags": ["praia", "paz"], "score": 7},
-    {"continent": "África", "country": "Senegal", "city": "Dakar", "lat": 14.7167, "lon": -17.4677, "tags": ["cultura", "música"], "score": 6},
-    {"continent": "África", "country": "Marrocos", "city": "Casablanca", "lat": 33.5731, "lon": -7.5898, "tags": ["comércio", "história"], "score": 7},
-    {"continent": "África", "country": "Tunísia", "city": "Túnis", "lat": 36.8065, "lon": 10.1815, "tags": ["história"], "score": 6},
-    {"continent": "África", "country": "Nigéria", "city": "Lagos", "lat": 6.5244, "lon": 3.3792, "tags": ["música"], "score": 6},
-    {"continent": "África", "country": "Quênia", "city": "Nairobi", "lat": -1.2921, "lon": 36.8219, "tags": ["natureza"], "score": 7},
-    {"continent": "África", "country": "Ruanda", "city": "Kigali", "lat": -1.9441, "lon": 30.0619, "tags": ["natureza"], "score": 6},
-    {"continent": "África", "country": "África do Sul", "city": "Joanesburgo", "lat": -26.2041, "lon": 28.0473, "tags": ["negócios"], "score": 7},
-    {"continent": "África", "country": "Seicheles", "city": "Mahé", "lat": -4.6796, "lon": 55.4920, "tags": ["luxo", "praia", "romance"], "score": 8},
-    {"continent": "África", "country": "Maurícia", "city": "Port Louis", "lat": -20.1609, "lon": 57.5012, "tags": ["luxo", "praia"], "score": 7},
-    # Oriente Médio, Ásia Central, Sul e Leste da Ásia (Meridianos +35° a +145°)
-    {"continent": "Ásia", "country": "Jordânia", "city": "Amã", "lat": 31.9454, "lon": 35.9284, "tags": ["história", "cultura"], "score": 7},
-    {"continent": "Ásia", "country": "Arábia Saudita", "city": "Riade", "lat": 24.7136, "lon": 46.6753, "tags": ["negócios", "finanças"], "score": 7},
-    {"continent": "Ásia", "country": "Omã", "city": "Mascate", "lat": 23.5880, "lon": 58.3829, "tags": ["paz", "história", "mar"], "score": 7},
-    {"continent": "Ásia", "country": "Geórgia", "city": "Tbilisi", "lat": 41.7151, "lon": 44.8271, "tags": ["cultura", "gastronomia"], "score": 7},
-    {"continent": "Ásia", "country": "Azerbaijão", "city": "Baku", "lat": 40.4093, "lon": 49.8671, "tags": ["arquitetura", "negócios"], "score": 7},
-    {"continent": "Ásia", "country": "Uzbequistão", "city": "Samarcanda", "lat": 39.6542, "lon": 66.9597, "tags": ["história", "arquitetura"], "score": 7},
-    {"continent": "Ásia", "country": "Cazaquistão", "city": "Almaty", "lat": 43.2220, "lon": 76.8512, "tags": ["montanha", "natureza"], "score": 7},
-    {"continent": "Ásia", "country": "Índia", "city": "Jaipur", "lat": 26.9124, "lon": 75.7873, "tags": ["história", "cultura", "arte"], "score": 7},
-    {"continent": "Ásia", "country": "Índia", "city": "Goa", "lat": 15.2993, "lon": 74.1240, "tags": ["praia", "espiritualidade"], "score": 7},
-    {"continent": "Ásia", "country": "Sri Lanka", "city": "Colombo", "lat": 6.9271, "lon": 79.8612, "tags": ["natureza", "chá", "paz"], "score": 7},
-    {"continent": "Ásia", "country": "Nepal", "city": "Katmandu", "lat": 27.7172, "lon": 85.3240, "tags": ["espiritualidade", "montanha"], "score": 7},
-    {"continent": "Ásia", "country": "Tailândia", "city": "Phuket", "lat": 7.8804, "lon": 98.3923, "tags": ["praia", "lazer"], "score": 7},
-    {"continent": "Ásia", "country": "Malásia", "city": "Kuala Lumpur", "lat": 3.1390, "lon": 101.6869, "tags": ["negócios", "modernidade"], "score": 7},
-    {"continent": "Ásia", "country": "Vietnã", "city": "Hanói", "lat": 21.0285, "lon": 105.8542, "tags": ["cultura"], "score": 7},
-    {"continent": "Ásia", "country": "Indonésia", "city": "Jacarta", "lat": -6.2088, "lon": 106.8456, "tags": ["negócios"], "score": 6},
-    {"continent": "Ásia", "country": "Filipinas", "city": "Manila", "lat": 14.5995, "lon": 120.9842, "tags": ["comércio"], "score": 6},
-    {"continent": "Ásia", "country": "Taiwan", "city": "Taipé", "lat": 25.0330, "lon": 121.5654, "tags": ["tecnologia", "gastronomia"], "score": 7},
-    {"continent": "Ásia", "country": "Coreia do Sul", "city": "Busan", "lat": 35.1796, "lon": 129.0756, "tags": ["praia"], "score": 7},
+    # Ásia
     {"continent": "Ásia", "country": "Japão", "city": "Osaka", "lat": 34.6937, "lon": 135.5023, "tags": ["gastronomia"], "score": 8},
-    # Oceania & Pacífico (Meridianos +115° a -150°)
-    {"continent": "Oceania", "country": "Austrália", "city": "Perth", "lat": -31.9505, "lon": 115.8605, "tags": ["natureza", "praia"], "score": 7},
-    {"continent": "Oceania", "country": "Austrália", "city": "Gold Coast", "lat": -28.0167, "lon": 153.4000, "tags": ["praia", "surf"], "score": 7},
+    {"continent": "Ásia", "country": "Vietnã", "city": "Hanói", "lat": 21.0285, "lon": 105.8542, "tags": ["cultura"], "score": 6},
+    {"continent": "Ásia", "country": "Filipinas", "city": "Manila", "lat": 14.5995, "lon": 120.9842, "tags": ["comércio"], "score": 5},
+    {"continent": "Ásia", "country": "Indonésia", "city": "Jacarta", "lat": -6.2088, "lon": 106.8456, "tags": ["negócios"], "score": 6},
+    {"continent": "Ásia", "country": "Coreia do Sul", "city": "Busan", "lat": 35.1796, "lon": 129.0756, "tags": ["praia"], "score": 6},
+    # África
+    {"continent": "África", "country": "Quênia", "city": "Nairobi", "lat": -1.2921, "lon": 36.8219, "tags": ["natureza"], "score": 6},
+    {"continent": "África", "country": "Nigéria", "city": "Lagos", "lat": 6.5244, "lon": 3.3792, "tags": ["música"], "score": 5},
+    {"continent": "África", "country": "Maurícia", "city": "Port Louis", "lat": -20.1609, "lon": 57.5012, "tags": ["luxo"], "score": 7},
+    {"continent": "África", "country": "Ruanda", "city": "Kigali", "lat": -1.9441, "lon": 30.0619, "tags": ["natureza"], "score": 5},
+    {"continent": "África", "country": "Tunísia", "city": "Túnis", "lat": 36.8065, "lon": 10.1815, "tags": ["história"], "score": 6},
+    # Oceania
+    {"continent": "Oceania", "country": "Fiji", "city": "Nadi", "lat": -17.7765, "lon": 177.4356, "tags": ["relaxamento"], "score": 6},
     {"continent": "Oceania", "country": "Austrália", "city": "Brisbane", "lat": -27.4698, "lon": 153.0251, "tags": ["clima"], "score": 7},
-    {"continent": "Oceania", "country": "Nova Caledônia", "city": "Nouméa", "lat": -22.2758, "lon": 166.4580, "tags": ["praia", "paz"], "score": 7},
-    {"continent": "Oceania", "country": "Nova Zelândia", "city": "Queenstown", "lat": -45.0312, "lon": 168.6626, "tags": ["aventura", "montanha"], "score": 8},
-    {"continent": "Oceania", "country": "Nova Zelândia", "city": "Wellington", "lat": -41.2865, "lon": 174.7762, "tags": ["cultura"], "score": 7},
-    {"continent": "Oceania", "country": "Fiji", "city": "Nadi", "lat": -17.7765, "lon": 177.4356, "tags": ["relaxamento"], "score": 7},
-    {"continent": "Oceania", "country": "Samoa", "city": "Apia", "lat": -13.8333, "lon": -171.7667, "tags": ["natureza", "paz"], "score": 6},
-    {"continent": "Oceania", "country": "Polinésia Francesa", "city": "Papeete", "lat": -17.5516, "lon": -149.5585, "tags": ["praia", "romance"], "score": 7},
-    {"continent": "Oceania", "country": "Havaí", "city": "Maui", "lat": 20.7984, "lon": -156.3319, "tags": ["praia", "natureza", "luxo"], "score": 8}
+    {"continent": "Oceania", "country": "Nova Zelândia", "city": "Wellington", "lat": -41.2865, "lon": 174.7762, "tags": ["cultura"], "score": 6},
+    {"continent": "Oceania", "country": "Austrália", "city": "Perth", "lat": -31.9505, "lon": 115.8605, "tags": ["natureza"], "score": 6}
 ]
 
 # ========== NORMALIZAÇÃO DE NOMES ==========
@@ -554,53 +488,11 @@ def score_city_for_house(city, house_id, user_intent):
         raw_total += 3
     return min(98, max(88, 84 + raw_total))
 
-def get_meridian_region(city):
-    cont = city.get("continent", "")
-    country = (city.get("country") or "").lower()
-    lat = float(city.get("lat", 0))
-    lon = float(city.get("lon", 0))
-
-    if "brasil" in country:
-        if lat <= -19.0:
-            return "Brasil — Sul & Sudeste"
-        return "Brasil — Nordeste & Centro"
-
-    if cont == "Américas":
-        if lat >= 23.0:
-            return "América do Norte"
-        if lat >= 7.0:
-            return "Caribe & América Central"
-        return "América do Sul"
-
-    if cont == "Europa":
-        if lon < -12.0:
-            return "Ilhas do Atlântico"
-        if lon < 6.0:
-            return "Europa Ocidental"
-        if lon <= 19.0:
-            return "Europa Central & Mediterrâneo"
-        return "Leste Europeu & Egeu"
-
-    if cont == "África":
-        if lat >= 5.0:
-            return "Norte & Oeste da África"
-        return "Sul & Leste da África"
-
-    if cont == "Ásia":
-        if lon < 62.0:
-            return "Oriente Médio"
-        if lon < 92.0:
-            return "Sul da Ásia & Índico"
-        if lon < 116.0:
-            return "Sudeste Asiático"
-        return "Leste Asiático"
-
-    return "Oceania & Pacífico"
-
-
-# ========== SCANNER ASTROLÓGICO FIEL AO MERIDIANO DA CASA ==========
+# ========== SCANNER MATEMÁTICO PURO (SWISS EPHEMERIS — ZERO FALLBACK GLOBAL) ==========
 def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
     results = {i: {"city": None, "lat": None, "lon": None, "longitude": None, "options": {}} for i in range(1, 13)}
+
+    ALL_CONTINENTS = ["Américas", "Europa", "Ásia", "África", "Oceania"]
 
     # 1. Calcula a Casa real (get_stable_house) para cada cidade PREMIUM
     premium_by_house = {i: [] for i in range(1, 13)}
@@ -611,7 +503,6 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
             "city": city["city"],
             "country": city["country"],
             "continent": city["continent"],
-            "region": get_meridian_region(city),
             "display_name": normalize_city_name(city["city"], city["country"]),
             "lat": city["lat"],
             "lon": city["lon"],
@@ -629,7 +520,6 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
             "city": city["city"],
             "country": city["country"],
             "continent": city["continent"],
-            "region": get_meridian_region(city),
             "display_name": normalize_city_name(city["city"], city["country"]),
             "lat": city["lat"],
             "lon": city["lon"],
@@ -639,67 +529,57 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
         fallback_by_house[house].append(city_data)
 
     for i in range(1, 13):
-        # Somente cidades que REALMENTE caem nesta Casa Astrológica (NUNCA puxa de outra Casa!)
-        seen_names = set()
-        house_all = []
-        for c in sorted(premium_by_house[i], key=lambda x: x["score"], reverse=True):
-            if c["city"] not in seen_names:
-                seen_names.add(c["city"])
-                house_all.append(c)
-        for c in sorted(fallback_by_house[i], key=lambda x: x["score"], reverse=True):
-            if c["city"] not in seen_names:
-                seen_names.add(c["city"])
-                house_all.append(c)
-
-        if not house_all:
+        house_cities = premium_by_house[i].copy() if premium_by_house[i] else fallback_by_house[i].copy()
+        if not house_cities:
             continue
 
-        best_city = house_all[0]
+        house_cities.sort(key=lambda x: x["score"], reverse=True)
+        best_city = house_cities[0]
         results[i]["city"] = best_city
         results[i]["lat"] = best_city["lat"]
         results[i]["lon"] = best_city["lon"]
         results[i]["longitude"] = best_city["lon"]
 
-        # Agrupa as cidades reais desta Casa por sub-região geográfica do meridiano
-        region_groups = {}
-        for c in house_all:
-            reg = c.get("region") or c.get("continent") or "Rota Principal"
-            region_groups.setdefault(reg, []).append(c)
+        # Agrupa APENAS as cidades que caíram matematicamente NESTA CASA por Continente
+        cont_groups = {cont: [] for cont in ALL_CONTINENTS}
+        for c in premium_by_house[i]:
+            if c["continent"] in cont_groups:
+                cont_groups[c["continent"]].append(c)
 
-        sorted_regions = sorted(
-            region_groups.keys(),
-            key=lambda r: (
-                len(region_groups[r]),
-                max((c["score"] for c in region_groups[r]), default=0),
+        # Ordena os continentes pela quantidade real de cidades nesta Casa e maior score
+        sorted_conts = sorted(
+            ALL_CONTINENTS,
+            key=lambda cont: (
+                len(cont_groups[cont]),
+                max((c["score"] for c in cont_groups[cont]), default=0),
             ),
             reverse=True,
         )
 
         options = {}
-        used_cities = set()
 
-        for reg_name in sorted_regions:
-            reg_cities = [c for c in region_groups[reg_name] if c["city"] not in used_cities][:3]
-            if reg_cities:
-                options[reg_name] = reg_cities
-                for rc in reg_cities:
-                    used_cities.add(rc["city"])
+        for cont_name in sorted_conts:
+            cities_for_cont = cont_groups[cont_name].copy()
+            cities_for_cont.sort(key=lambda x: x["score"], reverse=True)
+
+            # Se tiver menos de 3 cidades premium neste continente nesta Casa,
+            # completa SOMENTE com cidades fallback que também caíram matematicamente NESTA MESMA CASA
+            if len(cities_for_cont) < 3:
+                existing_names = {c["city"] for c in cities_for_cont}
+                fb_for_cont = [
+                    c for c in fallback_by_house[i]
+                    if c["continent"] == cont_name and c["city"] not in existing_names
+                ]
+                fb_for_cont.sort(key=lambda x: x["score"], reverse=True)
+                cities_for_cont.extend(fb_for_cont)
+
+            # NUNCA usa fallback global de outras Casas.
+            # Só adiciona o continente se houver pelo menos 1 cidade matematicamente real nesta Casa.
+            if cities_for_cont:
+                options[cont_name] = cities_for_cont[:3]
+
             if len(options) >= 3:
                 break
-
-        # Se a faixa de meridiano tiver menos de 3 sub-regiões distintas mas tiver mais cidades reais na mesma Casa,
-        # divide as cidades reais excedentes desta mesma Casa em colunas extras do mesmo meridiano
-        remaining_in_house = [c for c in house_all if c["city"] not in used_cities]
-        extra_idx = 2
-        while len(options) < 3 and remaining_in_house:
-            chunk = remaining_in_house[:3]
-            remaining_in_house = remaining_in_house[3:]
-            base_reg = chunk[0].get("region") or chunk[0].get("continent") or "Rota do Meridiano"
-            col_name = f"{base_reg} II" if base_reg in options else base_reg
-            while col_name in options:
-                extra_idx += 1
-                col_name = f"{base_reg} {extra_idx}"
-            options[col_name] = chunk
 
         results[i]["options"] = options
 
