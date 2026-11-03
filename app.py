@@ -87,7 +87,6 @@ def resolve_city():
 def find_city_for_house():
     try:
         data = request.get_json()
-        # 🔥 Removido birth_country da validação obrigatória
         error = validate_fields(data, [
             "name", "place_of_birth", "dob",
             "time", "target_year", "target_house"
@@ -95,7 +94,6 @@ def find_city_for_house():
         if error:
             return jsonify({"error": error}), 400
             
-        # Resolve Surubim ou qualquer cidade no mundo para o nascimento
         coords_natal = get_natal_coordinates(data["place_of_birth"], data.get("birth_country"))
         data["natal_lat"] = coords_natal["lat"]
         data["natal_lon"] = coords_natal["lon"]
@@ -121,7 +119,6 @@ def find_city_for_house():
 def find_all_cities():
     try:
         data = request.get_json()
-        # 🔥 Removido birth_country da validação obrigatória
         error = validate_fields(data, [
             "name", "place_of_birth", "dob",
             "time", "target_year"
@@ -129,7 +126,6 @@ def find_all_cities():
         if error:
             return jsonify({"error": error}), 400
             
-        # Resolve Surubim ou qualquer cidade no mundo para o nascimento
         coords_natal = get_natal_coordinates(data["place_of_birth"], data.get("birth_country"))
         data["natal_lat"] = coords_natal["lat"]
         data["natal_lon"] = coords_natal["lon"]
@@ -140,40 +136,25 @@ def find_all_cities():
         
         results, astro_info = find_all_cities_for_year(data, target_year, manifesto)
 
-        # NORMALIZAÇÃO GLOBAL
+        # NORMALIZAÇÃO GLOBAL PARA OS CONTINENTES DINÂMICOS
         for house_id, house_data in results.items():
             options = house_data.get("options", {})
-            for key in ["highticket", "acessivel", "nacional"]:
-                if key in options:
-                    options[key] = [
-                        normalize_city(c) for c in options[key] if c
-                    ]
+            for cont_key in list(options.keys()):
+                options[cont_key] = [
+                    normalize_city(c) for c in options[cont_key] if c
+                ]
 
-        # ORÁCULO
+        # ORÁCULO DINÂMICO
         alvo_id = int(data.get("alvoId", 1))
-        nome_cliente = data["name"]
-        prompt_mestre = data.get("prompt_mestre", "")
         opcoes = results.get(alvo_id, {}).get("options", {})
 
         destinos = []
-        for tipo in ["highticket", "acessivel", "nacional"]:
-            lista = opcoes.get(tipo, [])
+        for cont_name, lista in opcoes.items():
             if lista:
                 destinos.append(lista[0])
 
         if not destinos:
             return jsonify({"error": "Nenhuma cidade encontrada"}), 404
-
-        cidade_str = destinos[0]["display_name"]
-
-        nomes_casas = {
-            1: "O Herói", 2: "A Prosperidade", 3: "A Voz",
-            4: "A Raiz", 5: "O Criador", 6: "A Ordem",
-            7: "O Elo", 8: "O Salto", 9: "A Expansão",
-            10: "O Governante", 11: "O Visionário", 12: "O Silêncio"
-        }
-
-        nome_casa = nomes_casas.get(alvo_id, f"Casa {alvo_id}")
 
         oraculo = ""
 
@@ -210,7 +191,6 @@ def audit_past():
         lat = data.get("past_lat")
         lon = data.get("past_lon")
 
-        # Resolvendo a cidade de destino (passado) usando a lógica híbrida
         if (lat is None or lon is None) and cidade:
             coords = get_canonical_coordinates(
                 cidade,
@@ -234,7 +214,6 @@ def audit_past():
         }
 
         nome_casa = nomes_casas.get(casa, f"Casa {casa}")
-
         oraculo = ""
 
 
