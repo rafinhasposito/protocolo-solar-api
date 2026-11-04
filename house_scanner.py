@@ -216,49 +216,82 @@ PREMIUM_CITIES = [
     {"continent": "Ásia", "country": "China", "city": "Pequim", "lat": 39.9042, "lon": 116.4074, "tags": ["poder", "história", "política", "autoridade", "tradição"], "score": 8},
     {"continent": "Ásia", "country": "China", "city": "Xangai", "lat": 31.2304, "lon": 121.4737, "tags": ["negócios", "finanças", "dinheiro", "futuro", "metrópole"], "score": 8},
     {"continent": "Ásia", "country": "Japão", "city": "Kyoto", "lat": 35.0116, "lon": 135.7681, "tags": ["tradição", "espiritualidade", "templos", "paz", "cultura", "beleza"], "score": 8},
-    {"continent": "Ásia", "country": "Índia", "city": "Nova Délhi", "lat": 28.6139, "lon": 77.2090, "tags": ["poder", "política", "história", "caos", "transformação"], "score": 7},
+    {"continent": "Ásia", "country": "Maldivas", "city": "Malé (Ilhas Maldivas)", "lat": 4.1755, "lon": 73.5093, "tags": ["luxo", "romance", "praia", "exclusividade", "paz", "descanso"], "score": 9},
+    {"continent": "Ásia", "country": "Tailândia", "city": "Phuket", "lat": 7.8804, "lon": 98.3923, "tags": ["praia", "lazer", "natureza", "diversão", "bem-estar"], "score": 8},
+    {"continent": "Ásia", "country": "Tailândia", "city": "Chiang Mai", "lat": 18.7883, "lon": 98.9853, "tags": ["espiritualidade", "cultura", "natureza", "paz", "retiro"], "score": 8},
+    {"continent": "Ásia", "country": "Sri Lanka", "city": "Colombo", "lat": 6.9271, "lon": 79.8612, "tags": ["natureza", "cultura", "espiritualidade", "praia", "comércio"], "score": 8},
+    {"continent": "Ásia", "country": "Omã", "city": "Mascate", "lat": 23.5880, "lon": 58.3829, "tags": ["luxo", "segurança", "comércio", "história", "beleza"], "score": 8},
+    {"continent": "Ásia", "country": "Taiwan", "city": "Taipei", "lat": 25.0330, "lon": 121.5654, "tags": ["tecnologia", "inovação", "futuro", "gastronomia", "negócios"], "score": 8},
+    {"continent": "Ásia", "country": "Azerbaijão", "city": "Baku", "lat": 40.4093, "lon": 49.8671, "tags": ["arquitetura", "negócios", "riqueza", "modernidade"], "score": 7},
+    {"continent": "Ásia", "country": "Cazaquistão", "city": "Almaty", "lat": 43.2220, "lon": 76.8512, "tags": ["natureza", "montanhas", "aventura", "comércio"], "score": 7},
+    {"continent": "Ásia", "country": "Uzbequistão", "city": "Samarcanda", "lat": 39.6542, "lon": 66.9597, "tags": ["história", "arquitetura", "cultura", "sabedoria"], "score": 7},
+    {"continent": "Ásia", "country": "Nepal", "city": "Katmandu", "lat": 27.7172, "lon": 85.3240, "tags": ["espiritualidade", "autoconhecimento", "montanhas", "retiro"], "score": 7},
 
-    # 9. OCEANIA
+    # 9. OCEANIA & PACÍFICO
     {"continent": "Oceania", "country": "Austrália", "city": "Sydney", "lat": -33.8688, "lon": 151.2093, "tags": ["praia", "ação", "negócios", "beleza", "esporte", "lazer"], "score": 9},
     {"continent": "Oceania", "country": "Austrália", "city": "Melbourne", "lat": -37.8136, "lon": 144.9631, "tags": ["arte", "cultura", "cafés", "criatividade"], "score": 8},
     {"continent": "Oceania", "country": "Polinésia Francesa", "city": "Bora Bora", "lat": -16.5004, "lon": -151.7415, "tags": ["luxo", "romance", "lua de mel", "exclusividade", "praia"], "score": 8},
+    {"continent": "Oceania", "country": "Polinésia Francesa", "city": "Papeete (Taiti)", "lat": -17.5516, "lon": -149.5585, "tags": ["natureza", "romance", "praia", "paz", "beleza"], "score": 8},
     {"continent": "Oceania", "country": "Nova Zelândia", "city": "Auckland", "lat": -36.8485, "lon": 174.7633, "tags": ["mar", "vela", "natureza", "comércio"], "score": 7},
-    {"continent": "Oceania", "country": "Havaí", "city": "Honolulu", "lat": 21.3069, "lon": -157.8583, "tags": ["praia", "surf", "natureza", "espírito aloha", "férias", "lazer"], "score": 7},
+    {"continent": "Oceania", "country": "Nova Zelândia", "city": "Queenstown", "lat": -45.0312, "lon": 168.6626, "tags": ["aventura", "natureza", "esporte", "beleza", "luxo"], "score": 8},
+    {"continent": "Oceania", "country": "Havaí", "city": "Honolulu", "lat": 21.3069, "lon": -157.8583, "tags": ["praia", "surf", "natureza", "espírito aloha", "férias", "lazer"], "score": 8},
+    {"continent": "Oceania", "country": "Havaí", "city": "Maui", "lat": 20.7984, "lon": -156.3319, "tags": ["luxo", "natureza", "romance", "praia", "bem-estar"], "score": 8},
+    {"continent": "Américas", "country": "EUA (Alasca)", "city": "Anchorage", "lat": 61.2181, "lon": -149.9003, "tags": ["natureza", "aventura", "isolamento", "coragem"], "score": 7},
+    {"continent": "Américas", "country": "EUA (Alasca)", "city": "Juneau", "lat": 58.3019, "lon": -134.4197, "tags": ["natureza", "paz", "retiro", "aventura"], "score": 7},
+    {"continent": "Europa", "country": "Islândia", "city": "Reiquiavique", "lat": 64.1466, "lon": -21.9426, "tags": ["natureza", "inovação", "paz", "aventura", "misticismo"], "score": 8},
+    {"continent": "Europa", "country": "Espanha (Canárias)", "city": "Tenerife", "lat": 28.2916, "lon": -16.6291, "tags": ["praia", "lazer", "natureza", "sol", "descanso"], "score": 7},
 ]
 
 # ========== BANCO DE DADOS FALLBACK (Preenchimento de lacunas) ==========
 FALLBACK_CITIES = [
-    # Américas
+    # Américas & Pacífico Leste
     {"continent": "Américas", "country": "México", "city": "Guadalajara", "lat": 20.6597, "lon": -103.3496, "tags": ["cultura"], "score": 6},
     {"continent": "Américas", "country": "Argentina", "city": "Salta", "lat": -24.7821, "lon": -65.4232, "tags": ["história"], "score": 5},
     {"continent": "Américas", "country": "Chile", "city": "Viña del Mar", "lat": -33.0245, "lon": -71.5518, "tags": ["praia"], "score": 5},
+    {"continent": "Américas", "country": "Chile", "city": "Ilha de Páscoa", "lat": -27.1127, "lon": -109.3497, "tags": ["mistério", "natureza"], "score": 6},
+    {"continent": "Américas", "country": "Equador", "city": "Ilhas Galápagos", "lat": -0.9538, "lon": -90.9656, "tags": ["natureza", "exclusividade"], "score": 6},
     {"continent": "Américas", "country": "Colômbia", "city": "Cali", "lat": 3.4516, "lon": -76.5320, "tags": ["festa"], "score": 5},
     {"continent": "Américas", "country": "Peru", "city": "Arequipa", "lat": -16.4090, "lon": -71.5375, "tags": ["natureza"], "score": 5},
     {"continent": "Américas", "country": "EUA", "city": "Nova Orleans", "lat": 29.9511, "lon": -90.0715, "tags": ["música"], "score": 7},
     {"continent": "Américas", "country": "EUA", "city": "Austin", "lat": 30.2672, "lon": -97.7431, "tags": ["inovação"], "score": 6},
     {"continent": "Américas", "country": "Canadá", "city": "Victoria", "lat": 48.4284, "lon": -123.3656, "tags": ["natureza"], "score": 6},
-    # Europa
+    {"continent": "Américas", "country": "Canadá", "city": "Banff", "lat": 51.1784, "lon": -115.5708, "tags": ["natureza", "paz"], "score": 7},
+    {"continent": "Américas", "country": "Canadá", "city": "Halifax", "lat": 44.6488, "lon": -63.5752, "tags": ["mar", "tranquilidade"], "score": 6},
+    {"continent": "Américas", "country": "Canadá", "city": "St. John's", "lat": 47.5615, "lon": -52.7126, "tags": ["história", "mar"], "score": 6},
+    # Europa & Atlântico
     {"continent": "Europa", "country": "Itália", "city": "Nápoles", "lat": 40.8518, "lon": 14.2681, "tags": ["história"], "score": 7},
     {"continent": "Europa", "country": "Espanha", "city": "Sevilha", "lat": 37.3891, "lon": -5.9845, "tags": ["cultura"], "score": 7},
+    {"continent": "Europa", "country": "Espanha", "city": "Las Palmas", "lat": 28.1235, "lon": -15.4363, "tags": ["praia", "clima"], "score": 7},
     {"continent": "Europa", "country": "Alemanha", "city": "Hamburgo", "lat": 53.5511, "lon": 9.9937, "tags": ["comércio"], "score": 7},
     {"continent": "Europa", "country": "Reino Unido", "city": "Manchester", "lat": 53.4808, "lon": -2.2426, "tags": ["música"], "score": 6},
     {"continent": "Europa", "country": "Finlândia", "city": "Helsinque", "lat": 60.1699, "lon": 24.9384, "tags": ["design"], "score": 6},
     {"continent": "Europa", "country": "Polônia", "city": "Varsóvia", "lat": 52.2297, "lon": 21.0122, "tags": ["história"], "score": 6},
     {"continent": "Europa", "country": "Grécia", "city": "Mykonos", "lat": 37.4467, "lon": 25.3287, "tags": ["festa"], "score": 7},
+    {"continent": "Europa", "country": "Geórgia", "city": "Tbilisi", "lat": 41.7151, "lon": 44.8271, "tags": ["história", "gastronomia"], "score": 7},
     # Ásia
     {"continent": "Ásia", "country": "Japão", "city": "Osaka", "lat": 34.6937, "lon": 135.5023, "tags": ["gastronomia"], "score": 8},
+    {"continent": "Ásia", "country": "Japão", "city": "Okinawa", "lat": 26.2124, "lon": 127.6809, "tags": ["longevidade", "praia", "paz"], "score": 7},
     {"continent": "Ásia", "country": "Vietnã", "city": "Hanói", "lat": 21.0285, "lon": 105.8542, "tags": ["cultura"], "score": 6},
+    {"continent": "Ásia", "country": "Vietnã", "city": "Da Nang", "lat": 16.0544, "lon": 108.2022, "tags": ["praia", "modernidade"], "score": 7},
     {"continent": "Ásia", "country": "Filipinas", "city": "Manila", "lat": 14.5995, "lon": 120.9842, "tags": ["comércio"], "score": 5},
     {"continent": "Ásia", "country": "Indonésia", "city": "Jacarta", "lat": -6.2088, "lon": 106.8456, "tags": ["negócios"], "score": 6},
     {"continent": "Ásia", "country": "Coreia do Sul", "city": "Busan", "lat": 35.1796, "lon": 129.0756, "tags": ["praia"], "score": 6},
-    # África
+    {"continent": "Ásia", "country": "Uzbequistão", "city": "Tashkent", "lat": 41.2995, "lon": 69.2401, "tags": ["cultura", "comércio"], "score": 6},
+    # África & Oceano Índico / Atlântico
     {"continent": "África", "country": "Quênia", "city": "Nairobi", "lat": -1.2921, "lon": 36.8219, "tags": ["natureza"], "score": 6},
     {"continent": "África", "country": "Nigéria", "city": "Lagos", "lat": 6.5244, "lon": 3.3792, "tags": ["música"], "score": 5},
-    {"continent": "África", "country": "Maurícia", "city": "Port Louis", "lat": -20.1609, "lon": 57.5012, "tags": ["luxo"], "score": 7},
+    {"continent": "África", "country": "Ilhas Maurício", "city": "Port Louis", "lat": -20.1609, "lon": 57.5012, "tags": ["luxo", "praia"], "score": 7},
+    {"continent": "África", "country": "Cabo Verde", "city": "Ilha do Sal", "lat": 16.7347, "lon": -22.9439, "tags": ["praia", "música", "paz"], "score": 7},
+    {"continent": "África", "country": "Marrocos", "city": "Casablanca", "lat": 33.5731, "lon": -7.5898, "tags": ["comércio", "história"], "score": 7},
+    {"continent": "África", "country": "Senegal", "city": "Dakar", "lat": 14.7167, "lon": -17.4677, "tags": ["cultura", "música"], "score": 6},
     {"continent": "África", "country": "Ruanda", "city": "Kigali", "lat": -1.9441, "lon": 30.0619, "tags": ["natureza"], "score": 5},
     {"continent": "África", "country": "Tunísia", "city": "Túnis", "lat": 36.8065, "lon": 10.1815, "tags": ["história"], "score": 6},
-    # Oceania
-    {"continent": "Oceania", "country": "Fiji", "city": "Nadi", "lat": -17.7765, "lon": 177.4356, "tags": ["relaxamento"], "score": 6},
+    # Oceania & Pacífico
+    {"continent": "Oceania", "country": "Ilhas Fiji", "city": "Nadi", "lat": -17.7765, "lon": 177.4356, "tags": ["relaxamento", "praia"], "score": 7},
+    {"continent": "Oceania", "country": "Samoa", "city": "Apia", "lat": -13.8333, "lon": -171.7667, "tags": ["natureza", "paz"], "score": 6},
+    {"continent": "Oceania", "country": "Ilhas Cook", "city": "Rarotonga", "lat": -21.2292, "lon": -159.7765, "tags": ["praia", "romance"], "score": 7},
+    {"continent": "Oceania", "country": "Nova Caledônia", "city": "Nouméa", "lat": -22.2758, "lon": 166.4580, "tags": ["mar", "lazer"], "score": 6},
+    {"continent": "Oceania", "country": "Guam", "city": "Hagåtña (Guam)", "lat": 13.4757, "lon": 144.7489, "tags": ["praia", "viagens"], "score": 6},
     {"continent": "Oceania", "country": "Austrália", "city": "Brisbane", "lat": -27.4698, "lon": 153.0251, "tags": ["clima"], "score": 7},
     {"continent": "Oceania", "country": "Nova Zelândia", "city": "Wellington", "lat": -41.2865, "lon": 174.7762, "tags": ["cultura"], "score": 6},
     {"continent": "Oceania", "country": "Austrália", "city": "Perth", "lat": -31.9505, "lon": 115.8605, "tags": ["natureza"], "score": 6}
@@ -530,8 +563,50 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
 
     for i in range(1, 13):
         house_cities = premium_by_house[i].copy() if premium_by_house[i] else fallback_by_house[i].copy()
+
+        # Se a grade 3x3 (get_stable_house) deixou uma Casa estreita vazia, verifica o ponto exato Placidus (lat, lon)
         if not house_cities:
-            continue
+            for city in PREMIUM_CITIES + FALLBACK_CITIES:
+                _, ascmc = swe.houses_ex(jd_return, city["lat"], city["lon"], b'P')
+                if get_house_superposition(ascmc[0], natal_cusps) == i:
+                    score = score_city_for_house(city, i, user_intent)
+                    house_cities.append({
+                        "city": city["city"],
+                        "country": city["country"],
+                        "continent": city["continent"],
+                        "display_name": normalize_city_name(city["city"], city["country"]),
+                        "lat": city["lat"],
+                        "lon": city["lon"],
+                        "score": score,
+                        "tags": city.get("tags", []),
+                    })
+
+        # Segurança matemática final para cúspides ultra-estreitas em altas latitudes:
+        # seleciona a cidade cujo Ascendente de Revolução Solar está matematicamente mais próximo do centro da Casa i
+        if not house_cities:
+            cusp_start = natal_cusps[i - 1]
+            cusp_end = natal_cusps[0] if i == 12 else natal_cusps[i]
+            span = (cusp_end - cusp_start) % 360.0
+            cusp_mid = (cusp_start + span / 2.0) % 360.0
+            closest_city = None
+            closest_dist = 999.0
+            for city in PREMIUM_CITIES + FALLBACK_CITIES:
+                _, ascmc = swe.houses_ex(jd_return, city["lat"], city["lon"], b'P')
+                diff = abs((ascmc[0] - cusp_mid + 180.0) % 360.0 - 180.0)
+                if diff < closest_dist:
+                    closest_dist = diff
+                    closest_city = city
+            if closest_city:
+                house_cities.append({
+                    "city": closest_city["city"],
+                    "country": closest_city["country"],
+                    "continent": closest_city["continent"],
+                    "display_name": normalize_city_name(closest_city["city"], closest_city["country"]),
+                    "lat": closest_city["lat"],
+                    "lon": closest_city["lon"],
+                    "score": score_city_for_house(closest_city, i, user_intent),
+                    "tags": closest_city.get("tags", []),
+                })
 
         house_cities.sort(key=lambda x: x["score"], reverse=True)
         best_city = house_cities[0]
@@ -542,8 +617,10 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
 
         # Agrupa APENAS as cidades que caíram matematicamente NESTA CASA por Continente
         cont_groups = {cont: [] for cont in ALL_CONTINENTS}
-        for c in premium_by_house[i]:
-            if c["continent"] in cont_groups:
+        seen_in_house = set()
+        for c in (premium_by_house[i] + fallback_by_house[i] + house_cities):
+            if c["city"] not in seen_in_house and c["continent"] in cont_groups:
+                seen_in_house.add(c["city"])
                 cont_groups[c["continent"]].append(c)
 
         # Ordena os continentes pela quantidade real de cidades nesta Casa e maior score
@@ -561,17 +638,6 @@ def scan_premium_houses(jd_return, natal_cusps, user_intent=""):
         for cont_name in sorted_conts:
             cities_for_cont = cont_groups[cont_name].copy()
             cities_for_cont.sort(key=lambda x: x["score"], reverse=True)
-
-            # Se tiver menos de 3 cidades premium neste continente nesta Casa,
-            # completa SOMENTE com cidades fallback que também caíram matematicamente NESTA MESMA CASA
-            if len(cities_for_cont) < 3:
-                existing_names = {c["city"] for c in cities_for_cont}
-                fb_for_cont = [
-                    c for c in fallback_by_house[i]
-                    if c["continent"] == cont_name and c["city"] not in existing_names
-                ]
-                fb_for_cont.sort(key=lambda x: x["score"], reverse=True)
-                cities_for_cont.extend(fb_for_cont)
 
             # NUNCA usa fallback global de outras Casas.
             # Só adiciona o continente se houver pelo menos 1 cidade matematicamente real nesta Casa.

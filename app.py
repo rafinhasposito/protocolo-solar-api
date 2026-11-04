@@ -136,25 +136,15 @@ def find_all_cities():
         
         results, astro_info = find_all_cities_for_year(data, target_year, manifesto)
 
-        # NORMALIZAÇÃO GLOBAL PARA OS CONTINENTES DINÂMICOS
+        # NORMALIZAÇÃO GLOBAL PARA OS CONTINENTES DINÂMICOS E CIDADE TITULAR
         for house_id, house_data in results.items():
+            if house_data.get("city"):
+                house_data["city"] = normalize_city(house_data["city"])
             options = house_data.get("options", {})
             for cont_key in list(options.keys()):
                 options[cont_key] = [
                     normalize_city(c) for c in options[cont_key] if c
                 ]
-
-        # ORÁCULO DINÂMICO
-        alvo_id = int(data.get("alvoId", 1))
-        opcoes = results.get(alvo_id, {}).get("options", {})
-
-        destinos = []
-        for cont_name, lista in opcoes.items():
-            if lista:
-                destinos.append(lista[0])
-
-        if not destinos:
-            return jsonify({"error": "Nenhuma cidade encontrada"}), 404
 
         oraculo = ""
 
